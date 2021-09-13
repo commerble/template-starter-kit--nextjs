@@ -1,0 +1,36 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var order = Page.ViewData.Model as PurchaseOrder;
+    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    var data = new {
+        Items = order.Items.Select(item => new {
+            OrderLineType = item.OrderLineType,
+            ProductId = item.ProductId,
+            ProductName = item.Product.Name,
+            OrderAmount = item.OrderAmount,
+            Description = item.Description,
+            ExternalId1 = item.Product.ExternalId1,
+            ExternalId2 = item.Product.ExternalId2,
+            ExternalId3 = item.Product.ExternalId3,
+            ExternalId4 = item.Product.ExternalId4,
+            PointUsagePrice = item.PointUsagePrice,
+            PointUsageTax = item.PointUsageTax,
+            PointUsage = item.PointUsage,
+            DiscountPrice = item.DiscountPrice,
+            LinePrice = item.LinePrice,
+            Tax = item.Tax,
+            UnitPriceWithoutTax = item.UnitPrice,
+            UnitPriceWithTax = (item.LinePrice + item.DiscountPrice + item.PointUsagePrice) / item.OrderAmount,
+            Thumbnail = prefix + item.ProductId + "/Large"
+        }),
+        Errors = new object[]{},
+        DeliveryOrder = order.DeliveryOrder,
+        DeliveryOrderAddress = order.DeliveryOrderAddress,
+        OrderCustomer = order.OrderCustomer,
+        OrderCustomerOrderedAddress = order.OrderCustomerOrderedAddress,
+        OrderCustomerInvoiceAddress = order.OrderCustomerInvoiceAddress,
+        ServiceValues = order.ServiceValues,
+    };
+    @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
+}

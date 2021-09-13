@@ -1,16 +1,232 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-indigo-50 bg-opacity-50;
+  }
+  #__next {
+    @apply flex flex-col min-h-screen;
+  }
+  main {
+    @apply  flex-grow;
+  }
+  h1 {
+    @apply text-2xl;
+  }
+  h2 {
+    @apply text-xl;
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.global-header {
+  @apply bg-white py-2 md:py-4;
 }
 
-* {
-  box-sizing: border-box;
+.global-header__container {
+  @apply container px-4 mx-auto md:flex md:items-center
+}
+
+.logo {
+  @apply font-bold text-xl text-indigo-600;
+}
+
+.cart-items {
+  @apply bg-white p-8 pr-12 rounded-xl flex flex-col gap-8;
+}
+
+.x-center {
+  @apply flex flex-col items-center;
+}
+.xy-center {
+  @apply flex flex-col items-center justify-center;
+}
+
+.btn {
+  @apply py-2 px-4 rounded flex flex-row justify-center items-center;
+}
+.btn-blue {
+  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+}
+
+.btn-gray {
+  @apply bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded;
+}
+
+.btn-group {
+  @apply flex flex-row items-center;
+  input, .btn {
+    @apply rounded-none;
+  }
+  input:first-child, .btn:first-child {
+    @apply rounded-l rounded-r-none;
+  }
+  input:last-child, .btn:last-child {
+    @apply rounded-r rounded-l-none;
+  }
+}
+
+.image {
+  @apply w-full bg-gray-200 block overflow-hidden;
+  
+  img {
+    @apply top-0 leading-8 text-center w-full h-auto block relative;
+  }
+  
+  img:before { 
+    @apply absolute top-0 left-0 bottom-0 right-0 bg-gray-200 block;
+    content: "";
+  }
+
+  img:after { 
+    @apply block leading-8 text-gray-600 font-normal absolute top-0 w-full text-center;
+    content: "📷 " attr(alt);
+  }
+}
+
+.image-square {
+  position: relative;
+  padding-bottom: 100%;
+
+  img {
+    @apply absolute top-0;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 50%;
+  }
+}
+.image-4x3 {
+  position: relative;
+  padding-bottom: 75%;
+
+  img {
+    @apply absolute top-0;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 37.5%;
+  }
+}
+.image-2x1 {
+  position: relative;
+  padding-bottom: 50%;
+
+  img {
+    @apply absolute top-0;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 25%;
+  }
+}
+.image-golden {
+  position: relative;
+  padding-bottom: 61.8%;
+
+  img {
+    @apply absolute top-0;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 30.9%;
+  }
+}
+.image-hero {
+  position: relative;
+  padding-bottom: 30%;
+
+  img {
+    @apply absolute top-0 w-full h-full object-cover object-center;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 15%;
+  }
+}
+
+.image-squircle {
+  position: relative;
+  padding-bottom: 100%;
+  clip-path: url('#squircle');
+
+  img {
+    @apply absolute top-0;
+  }
+  img:after {
+    @apply -top-4;
+    margin-top: 50%;
+  }
+}
+
+.price {
+  @apply inline-block;
+  .price__mark {
+    @apply mr-1;
+  }
+  .price__value {
+  }
+  .price__unit {
+    @apply ml-1;
+  }
+  .price__tax {
+    @apply ml-1 text-sm;
+  }
+  &.price--strong {
+
+  }
+  &.price--attention {
+
+  }
+}
+
+.layout-2col {
+  @apply h-screen flex flex-row
+}
+
+.layout-2col__col {
+  @apply h-full w-1/2 overflow-y-auto;
+  scroll-behavior: smooth;
+}
+.layout-2col__col::-webkit-scrollbar {
+  display: none;
+}
+
+
+.modal {
+  @apply absolute top-0 w-full h-full z-50 hidden justify-center items-center;
+  &.modal--open {
+    @apply flex;
+  }
+  &::before {
+    @apply absolute top-0 w-full h-full z-40 bg-gray-500 opacity-50;
+    content: "";
+  }
+}
+
+.modal__container {
+  @apply p-16 pb-8 bg-white flex flex-col gap-8 rounded-md z-50;
+}
+
+.field {
+  @apply flex-grow;
+  label {
+    @apply block mb-2;
+  }
+  input, select {
+    @apply p-2 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded border-gray-300
+  }
+  .half {
+    @apply w-1/2;
+  }
+}
+
+.field-group {
+  @apply flex flex-row gap-8;
+}
+
+.form-body {
+  @apply flex flex-col p-8 gap-8 max-w-xl;
+  width: 460px;
 }

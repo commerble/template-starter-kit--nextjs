@@ -1,0 +1,34 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var carts = Page.ViewData.Model as IEnumerable<ShoppingCartBase>;
+    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    var data = carts.Select(cart => new {
+        Id = cart.CartDefinition.CartId,
+        Items = cart.Items.Select(item => new {
+            ProductId = item.ProductId,
+            ProductName = item.Product.Name,
+            RequestAmount = item.RequestAmount,
+            Description = item.Description,
+            ExternalId1 = item.Product.ExternalId1,
+            ExternalId2 = item.Product.ExternalId2,
+            ExternalId3 = item.Product.ExternalId3,
+            ExternalId4 = item.Product.ExternalId4,
+            UnitPriceWithoutTax = item.UnitPrice,
+            UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(item.ProductId),
+            DiscountPrice = item.DiscountPrice,
+            LinePrice = item.LinePrice,
+            Tax = item.Tax,
+            Thumbnail = prefix + item.ProductId + "/Large"
+        }),
+        State = viewData,
+        Errors = cart.Errors.Select(error => new {
+            Type = error.ErrorType,
+            DetailErrorCode = error.DetailErrorCode,
+            DetailErrorMessage = error.DetailErrorMessage,
+            Item = error.Item?.ProductId
+        })
+    });
+    @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
+}

@@ -1,0 +1,76 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    string productCode = ViewBag.Code;
+
+    var now = Page.Template.TruncateNow();
+
+    var prefixProducts = "https://" + Page.Request.Url.Host + Href("~/productimages/");
+
+    var products = Database.Query(db =>
+        from p in db.Products
+        where
+        (p.CanonicalId == int.Parse(productCode)) &&
+        (p.DisplayStartAt == null || p.DisplayStartAt <= now) &&
+        (p.DisplayEndAt == null || p.DisplayEndAt >= now)
+        select new
+        {
+            p.Id,
+            p.CanonicalId,
+            p.Name,
+            p.Size,
+            p.Price,
+            p.ReleaseAt,
+            Summary = db.ProductDescriptions.FirstOrDefault(x => x.ProductId == p.CanonicalId && x.DescriptionTypeCode == "Summary").Description,
+            Detail = db.ProductDescriptions.FirstOrDefault(x => x.ProductId == p.CanonicalId && x.DescriptionTypeCode == "Detail").Description,
+            Images = db.ProductImages.Where(x => x.ProductId == p.CanonicalId).OrderByDescending(x => x.ViewOrder).Select(img => new {
+                Url = prefixProducts + img.ProductId + "/" + img.ImageTypeCode + "/" + img.ViewOrder,
+            }).ToArray(),
+            amount = Page.Template.GetProductAmount(p.Id)
+        }
+        ).OrderBy(a => a.Id);
+
+    var currentProduct = products.FirstOrDefault();
+
+    var category = Database.Query(db =>
+        from pC in db.ProductCategories
+        from c in db.Categories
+        where pC.ProductId == int.Parse(productCode) &&
+        c.Code == pC.CategoryCode
+        select c).FirstOrDefault();
+
+    var categoryGroup = Database.Query(db =>
+        from c in db.CategoryGroups
+        where c.Code == category.CategoryGroupCode
+        select c).FirstOrDefault();
+
+    var prefixRecommends = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    var recommends = Database.Query(db =>
+            from p in db.Products.Where(p => p.CanonicalId == p.Id)
+            from pD in db.ProductDescriptions
+            where p.CanonicalId == pD.ProductId &&
+                    pD.ViewOrder == 1 &&
+                    pD.DescriptionTypeCode == "Summary" &&
+                    (p.DisplayStartAt == null || p.DisplayStartAt <= now) &&
+                    (p.DisplayEndAt == null || p.DisplayEndAt >= now)
+            select new
+            {
+                p.Name,
+                p.Price,
+                p.CanonicalId,
+                p.ReleaseAt,
+                pD.Description,
+                Sizes = db.Products.Where(a => a.CanonicalId == p.CanonicalId).OrderBy(a => a.Id).Select(a => a.Size.Trim()).ToArray(),
+                Thumbnail = prefixRecommends + p.Id + "/Large"
+            });
+
+    var unitPrice = Page.Template.GetUnitPriceWithTax((int)currentProduct.CanonicalId);
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        products,
+        category,
+        categoryGroup,
+        recommends,
+        unitPrice,
+    }, Jil.Options.ISO8601CamelCase))
+}

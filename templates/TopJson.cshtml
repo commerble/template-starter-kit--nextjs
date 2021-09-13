@@ -1,0 +1,47 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var now = Page.Template.TruncateNow();
+    var prefixBanners = "https://" + Page.Request.Url.Host + Href("~/banners/");
+    var banners = Database.Query(db =>
+        from b in db.Banners
+        where b.BannerTypeCode == "TopBottomBanner" &&
+            b.IsDisplay &&
+            b.FileBinary != null &&
+            (b.DisplayStartAt == null || b.DisplayStartAt <= now) &&
+            (b.DisplayEndAt == null || b.DisplayEndAt >= now)
+        select new { 
+            b.TargetCode, 
+            b.ViewOrder, 
+            b.Title, 
+            b.LinkUrl, 
+            b.BannerTypeCode,
+            Thumbnail = prefixBanners + b.BannerTypeCode + "/" + b.TargetCode
+        }
+    ).OrderByDescending(b => b.ViewOrder);
+
+    var prefixProducts = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    var products = Database.Query(db =>
+                from p in db.Products.Where(p => p.CanonicalId == p.Id)
+                from pD in db.ProductDescriptions
+                where p.CanonicalId == pD.ProductId &&
+                        pD.ViewOrder == 1 &&
+                        pD.DescriptionTypeCode == "Summary" &&
+                        (p.DisplayStartAt == null || p.DisplayStartAt <= now) &&
+                        (p.DisplayEndAt == null || p.DisplayEndAt >= now)
+                select new {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    CanonicalId = p.CanonicalId,
+                    ReleaseAt = p.ReleaseAt,
+                    Description = pD.Description,
+                    IsNew = p.IsNew,
+                    Sizes = db.Products.Where(a => a.CanonicalId == p.CanonicalId).OrderBy(a => a.Id).Select(a => a.Size.Trim()).ToArray(),
+                    Thumbnail = prefixProducts + p.Id + "/Large"
+                }).OrderByDescending(p => p.ReleaseAt); 
+    @:@Raw(Jil.JSON.Serialize(new {
+        banners,
+        products,
+    }, Jil.Options.ISO8601CamelCase))
+}
