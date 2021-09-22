@@ -33,7 +33,7 @@ const send = (url:string, options:Options) : Promise<SendResponse> => {
         const request = https.request({
             ...options,
             headers: {
-                'Authorize': AUTHORIZE,
+                'Authorization': AUTHORIZE,
                 'X-Template-Suffix': 'Json',
                 ...(options.headers||{}),
             },
