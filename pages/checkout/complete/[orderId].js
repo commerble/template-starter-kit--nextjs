@@ -10,7 +10,7 @@ export default function CheckoutCompletePage({data}) {
         <div className="layout-2col__col bg-white">
             <div className="p-2 md:p-4 md:px-8">
                 <Link href="/">
-                    <a href="/" className="logo">Commerble Shop</a>
+                    <a className="logo">Commerble Shop</a>
                 </Link>
             </div>
             <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
