@@ -13,7 +13,7 @@ export default function CheckoutStep1Page({data}) {
 
     const [form, setForm] = useState(data);
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm({
         defaultValues: form
     })
 
@@ -32,6 +32,17 @@ export default function CheckoutStep1Page({data}) {
         }
     }
 
+    const searchZipCode = async () => {
+        const code = getValues("orderCustomerOrderedAddress.zipCode");
+        const result = await axios.get(`/api/address?zipcode=${code}`);
+        if (result.status === 200 && result.data.length > 0) {
+            const addr = result.data[0];
+            setValue("orderCustomerOrderedAddress.pref", addr.Prefecture)
+            setValue("orderCustomerOrderedAddress.city", addr.City)
+            setValue("orderCustomerOrderedAddress.street", addr.Street)
+        }
+    }
+
     return <>
         <div className="layout-2col">
             <div className="layout-2col__col bg-white">
@@ -41,7 +52,7 @@ export default function CheckoutStep1Page({data}) {
                     </Link>
                 </div>
                 <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
-                <div className="x-center gap-8  w-full">
+                <div className="hidden md:x-center gap-8 ">
                     <section className="cart-items">
                         {form.items.map(item => (
                             <CartLine 
@@ -103,7 +114,7 @@ export default function CheckoutStep1Page({data}) {
                         <label>郵便番号</label>
                         <div className="half btn-group">
                             <input maxLength={7} {...register("orderCustomerOrderedAddress.zipCode", { required: true })}/>
-                            <button className="btn btn-gray">検索</button>
+                            <button type="button" className="btn btn-gray" onClick={searchZipCode}>検索</button>
                         </div>
                         {errors?.orderCustomerOrderedAddress?.zipCode && <span>This field is required</span>}
                     </div>

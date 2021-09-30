@@ -393,3 +393,12 @@ export const getExternal = async (context: Context, cartId: number, orderId: num
 
     throw new Error(response.statusMessage);
 }
+
+export const searchZipCode = async (context: Context, zip: string) => {
+    const response = await get(context, `/site/zipcode/${zip}`);
+    
+    if (response.statusCode === 200)
+        return JSON.parse(response.body);
+
+    throw new Error(response.statusMessage);
+}

@@ -1,11 +1,10 @@
 
-import { ShoppingCartIcon, UserAddIcon } from '@heroicons/react/outline';
+import { ShoppingCartIcon, SunIcon, UserAddIcon } from '@heroicons/react/outline';
 import axios from 'axios';
 import { useRouter } from 'next/dist/client/router';
 import { useEffect, useState } from 'react';
 import { CartLine } from '../components/CartLine';
 import { Modal } from '../components/Modal';
-import { Price } from '../components/Price';
 import { getCart } from '../libs/cbpaas';
 import { ERR_UNAUTHORIZED } from '../libs/constant';
 import Link from "next/link";
@@ -130,7 +129,7 @@ export default function CartPage({data}) {
                     {/* <pre>{JSON.stringify(carts, null, '\t')}</pre> */}
                 </div>
             </div>
-            <div className="layout-2col__col xy-center">
+            <div className="layout-2col__col xy-center pb-8">
                 <section>
                     {cart.state.errors.map(err => <p key={err} className="text-red-400">※ {err}</p>)}
                     <CartSummary
@@ -145,7 +144,12 @@ export default function CartPage({data}) {
                             <img src="https://developer.apple.com/design/human-interface-guidelines/apple-pay/images/button-check-out-with_2x.png" className="w-72"/>
                             <img src="https://m.media-amazon.com/images/G/01/EPSDocumentation/AmazonPay/Buttons/JPbuttons/amazonpay-gold-button.png" className="w-72"/>
                             <button className="btn-blue h-14 w-72 text-lg" onClick={() => tryCheckoutStart()}>
-                                <ShoppingCartIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>CHECK OUT</button>
+                                {isLoading ? (
+                                    <SunIcon className="inline-block w-8 h-8 animate-spin"/>
+                                ):(
+                                    <><ShoppingCartIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>CHECK OUT</>
+                                )}
+                            </button>
                         </div> 
                     </>}
                 </section>

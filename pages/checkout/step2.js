@@ -36,7 +36,7 @@ export default function CheckoutStep2Page({data}) {
                     </Link>
                 </div>
                 <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
-                <div className="x-center gap-8  w-full">
+                <div className="hidden md:x-center gap-8  w-full">
                     <section className="cart-items">
                         {form.items.map(item => (
                             <CartLine 

@@ -13,7 +13,7 @@ export default function CheckoutCompletePage({data}) {
                     <a className="logo">Commerble Shop</a>
                 </Link>
             </div>
-            <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
+            <h1 className="text-center my-8 text-indigo-900 text-4xl">Thank you :)</h1>
             <div className="x-center gap-8  w-full">
                     <section className="cart-items">
                     {data.items.map(item => (
@@ -36,7 +36,7 @@ export default function CheckoutCompletePage({data}) {
         <div className="layout-2col__col x-center pt-16">
             <h2>お買い上げありがとうございます。</h2>
             <div className="form-body">
-                <ul className="bg-white rounded p-8 w-96 max-w-xl">
+                <ul className="bg-white rounded p-8 md:w-96 max-w-xl">
                     <li className="text-xl text-indigo-600"><CurrencyYenIcon className="inline-block w-16 h-16 mr-8"/>ご注文完了</li>
                     <li className="text-gray-500"><ArrowDownIcon className="inline-block w-8 h-16 mr-12 ml-4"/>翌営業日</li>
                     <li className="text-xl"><CubeIcon className="inline-block w-16 h-16 text-gray-500 mr-8"/>発送準備</li>

@@ -16,7 +16,7 @@ export const CartLine = ({
     disabled = false,
     hiddenActions = false,
 }) => {
-    return <article className="flex flex-row items-center gap-8">
+    return <article className="flex flex-col md:flex-row items-center gap-8">
         <div className="w-36">
             <div className="image image-squircle">
                 <img src={img} alt="Sample image" loading="lazy" decoding="async"/>

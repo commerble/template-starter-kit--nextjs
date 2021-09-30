@@ -25,7 +25,7 @@
 }
 
 .global-header__container {
-  @apply container px-4 mx-auto md:flex md:items-center
+  @apply container px-4 mx-auto flex items-center
 }
 
 .logo {
@@ -43,6 +43,13 @@
   @apply flex flex-col items-center justify-center;
 }
 
+.md\:x-center {
+  @apply md:flex md:flex-col md:items-center;
+}
+.md\:xy-center {
+  @apply md:flex md:flex-col md:items-center md:justify-center;
+}
+
 .btn {
   @apply py-2 px-4 rounded flex flex-row justify-center items-center;
 }
@@ -57,7 +64,7 @@
 .btn-group {
   @apply flex flex-row items-center;
   input, .btn {
-    @apply rounded-none;
+    @apply rounded-none border-2 border-gray-300;
   }
   input:first-child, .btn:first-child {
     @apply rounded-l rounded-r-none;
@@ -182,11 +189,11 @@
 }
 
 .layout-2col {
-  @apply h-screen flex flex-row
+  @apply h-screen flex flex-col md:flex-row
 }
 
 .layout-2col__col {
-  @apply h-full w-1/2 overflow-y-auto;
+  @apply md:h-full md:w-1/2 md:overflow-y-auto;
   scroll-behavior: smooth;
 }
 .layout-2col__col::-webkit-scrollbar {
@@ -195,7 +202,7 @@
 
 
 .modal {
-  @apply absolute top-0 w-full h-full z-50 hidden justify-center items-center;
+  @apply fixed top-0 w-full h-full z-50 hidden justify-center items-center;
   &.modal--open {
     @apply flex;
   }
@@ -215,7 +222,7 @@
     @apply block mb-2;
   }
   input, select {
-    @apply p-2 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded border-gray-300
+    @apply p-2 focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded border-2 border-gray-300
   }
   .half {
     @apply w-1/2;
@@ -223,10 +230,11 @@
 }
 
 .field-group {
-  @apply flex flex-row gap-8;
+  @apply flex flex-row gap-2 md:gap-8;
 }
 
 .form-body {
   @apply flex flex-col p-8 gap-8 max-w-xl;
   width: 460px;
+  max-width: 100%;
 }
