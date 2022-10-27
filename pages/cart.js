@@ -17,7 +17,7 @@ export default function CartPage({data}) {
 
     useEffect(() => {
         cb.getCarts();
-    }, [cb]);
+    }, []);
 
     const subtotal = useMemo(() => cart?.items.reduce((acc, item) => acc + item.linePrice + item.discountPrice, 0), [cart, cartId]);
     const discount = useMemo(() => cart?.items.reduce((acc, item) => acc + item.discountPrice, 0), [cart, cartId]);

@@ -26,12 +26,8 @@ export default function CheckoutConfirmPage({data}) {
     const cb = useCommerble();
 
     useEffect(() => {
-        cb.getConfirmInfo(1).then(next => {
-            if (next === 'login') {
-                router.push('/cart');
-            }
-        })
-    })
+        cb.getConfirmInfo(1)
+    },[])
 
     const purchase = async () => {
         await cb.purchase();

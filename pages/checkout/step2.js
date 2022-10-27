@@ -16,7 +16,7 @@ export default function CheckoutStep2Page({data}) {
 
     useEffect(() => {
         cb.getPaymentForm(1)
-    }, [cb])
+    }, [])
 
     useEffect(() => {
         reset(cb.data.payment);

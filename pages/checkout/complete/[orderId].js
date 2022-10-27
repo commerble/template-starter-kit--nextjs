@@ -11,7 +11,7 @@ export default function CheckoutCompletePage({data}) {
 
     useEffect(() => {
         cb.getCompleteInfo(1, data.orderId)
-    }, [cb])
+    }, [])
 
     return <div className="layout-2col">
         <div className="layout-2col__col bg-white">

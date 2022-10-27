@@ -16,7 +16,7 @@ export default function CheckoutStep1Page({data}) {
 
     useEffect(() => {
         cb.getShippingForm(1)
-    }, [cb])
+    }, [])
     
     useEffect(() => {
         reset(cb.data.shipping);
