@@ -23,6 +23,12 @@ export default (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
         replaceStr: ''
       }
     ],
+    locationRewrite: [
+      {
+        patternStr: '^' + process.env.CBPAAS_PREFIX,
+        replaceStr: '/api/ec'
+      }
+    ],
     agent:new https.Agent({
       rejectUnauthorized: false
     }),
