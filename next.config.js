@@ -1,5 +1,5 @@
 module.exports = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   i18n: {
     locales: ['ja-JP'],
     defaultLocale: 'ja-JP',

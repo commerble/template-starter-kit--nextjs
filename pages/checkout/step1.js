@@ -1,21 +1,26 @@
-import { ERR_UNAUTHORIZED } from "../../libs/constant";
 import { useRouter } from "next/dist/client/router";
-import { useState } from "react";
-import { getShippingForm } from "../../libs/cbpaas";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
 import { CartLine } from "../../components/CartLine";
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import Link from "next/link";
+import useCommerble from "../../libs/commerble";
 
 export default function CheckoutStep1Page({data}) {
     const router = useRouter();
-
-    const [form, setForm] = useState(data);
-
-    const { register, handleSubmit, formState: { errors }, getValues, setValue } = useForm({
-        defaultValues: form
+    const cb = useCommerble();
+    const [isLoading, setLoading] = useState(false);
+    const { register, handleSubmit, formState: { errors }, getValues, setValue, reset } = useForm({
+        defaultValues: cb.data.shipping
     })
+
+    useEffect(() => {
+        cb.getShippingForm(1)
+    }, [])
+    
+    useEffect(() => {
+        reset(cb.data.shipping);
+    }, [cb.data.shipping]);
 
     const onSubmit = async (data) => {
         data.orderCustomerOrderedAddress.recipientlastname = data.customer.lastName;
@@ -23,23 +28,21 @@ export default function CheckoutStep1Page({data}) {
         data.orderCustomerOrderedAddress.recipientlastnamekana = data.customer.lastNameKana;
         data.orderCustomerOrderedAddress.recipientfirstnamekana = data.customer.firstNameKana;
         data.deliveryOrderAddress = data.orderCustomerOrderedAddress;
-        const res = await axios.post('/api/purchase/1/shipping', data);
-        if (res.data.errors.length === 0) {
-            router.push('/checkout/step2');
-        }
-        else {
-            setForm(res.data);
-        }
+        await cb.postShippingForm(1, data);
     }
 
     const searchZipCode = async () => {
-        const code = getValues("orderCustomerOrderedAddress.zipCode");
-        const result = await axios.get(`/api/address?zipcode=${code}`);
-        if (result.status === 200 && result.data.length > 0) {
-            const addr = result.data[0];
+        try {
+            setLoading(true);
+            const code = getValues("orderCustomerOrderedAddress.zipCode");
+            const result = await cb.searchAddress(code);
+            const addr = result[0];
             setValue("orderCustomerOrderedAddress.pref", addr.Prefecture)
             setValue("orderCustomerOrderedAddress.city", addr.City)
             setValue("orderCustomerOrderedAddress.street", addr.Street)
+        }
+        finally {
+            setLoading(false);
         }
     }
 
@@ -47,14 +50,14 @@ export default function CheckoutStep1Page({data}) {
         <div className="layout-2col">
             <div className="layout-2col__col bg-white">
                 <div className="p-2 md:p-4 md:px-8">
-                    <Link href="/">
-                        <a className="logo">Commerble Shop</a>
+                    <Link href="/" className="logo">
+                        Commerble Shop
                     </Link>
                 </div>
                 <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
                 <div className="hidden md:x-center gap-8 ">
                     <section className="cart-items">
-                        {form.items.map(item => (
+                        {cb.data.shipping?.items?.map(item => (
                             <CartLine 
                                 key={item.productId}
                                 productId={item.productId}
@@ -73,7 +76,7 @@ export default function CheckoutStep1Page({data}) {
             </div>
             <form className="layout-2col__col x-center pt-16" onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-body">
-                    {form.state.errors.map(err => <p key={err} className="text-red-400 ml-4">※ {err}</p>)}
+                    {cb.data.shipping?.state.errors.map(err => <p key={err} className="text-red-400 ml-4">※ {err}</p>)}
 
                     <h2>購入者</h2>
                     
@@ -160,20 +163,4 @@ export default function CheckoutStep1Page({data}) {
             </form>
         </div>
     </>
-}
-
-export async function getServerSideProps(ctx) {
-    const data = await getShippingForm(ctx, 1);
-
-    if (data.errors.some(err => err.type === ERR_UNAUTHORIZED)) {
-        return {
-            redirect: {
-                permanent: false,
-                destination: "/login",
-            },
-            props:{},
-        }
-    }
-
-    return { props: { data: data } }
 }

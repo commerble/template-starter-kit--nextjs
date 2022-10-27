@@ -1,44 +1,43 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/outline";
-import axios from "axios";
 import { useRouter } from "next/dist/client/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CartLine } from "../../components/CartLine";
-import { getPaymentForm } from "../../libs/cbpaas";
-import { ERR_UNAUTHORIZED } from "../../libs/constant";
 import Link from "next/link";
+import useCommerble from "../../libs/commerble";
 
 export default function CheckoutStep2Page({data}) {
     const router = useRouter();
-
-    const [form, setForm] = useState(data);
-
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        defaultValues: form
+    const cb = useCommerble();
+    const [isLoading, setLoading] = useState(false);
+    const { register, handleSubmit, formState: { errors }, getValues, setValue, reset } = useForm({
+        defaultValues: cb.data.shipping
     })
 
+    useEffect(() => {
+        cb.getPaymentForm(1)
+    }, [])
+
+    useEffect(() => {
+        reset(cb.data.payment);
+    }, [cb.data.payment]);
+
     const onSubmit = async (data) => {
-        const result = await axios.post('/api/purchase/1/payment', data);
-        if (result.data.errors.length === 0) {
-            router.push('/checkout/confirm');
-        }
-        else {
-            setForm(result);
-        }
+        await cb.postPaymentForm(1, data);
     }
 
     return <>
         <div className="layout-2col">
             <div className="layout-2col__col bg-white">
                 <div className="p-2 md:p-4 md:px-8">
-                    <Link href="/">
-                        <a className="logo">Commerble Shop</a>
+                    <Link href="/" className="logo">
+                        Commerble Shop
                     </Link>
                 </div>
                 <h1 className="text-center my-8 text-indigo-900 text-4xl">Check out</h1>
                 <div className="hidden md:x-center gap-8  w-full">
                     <section className="cart-items">
-                        {form.items.map(item => (
+                        {cb.data.payment?.items.map(item => (
                             <CartLine 
                                 key={item.productId}
                                 productId={item.productId}
@@ -57,7 +56,7 @@ export default function CheckoutStep2Page({data}) {
             </div>
             <form className="layout-2col__col x-center pt-16" onSubmit={handleSubmit(onSubmit)}>
                 <div className="form-body">
-                    {form.state.errors.map(err => <p key={err} className="text-red-400 ml-4">※ {err}</p>)}
+                    {cb.data.payment?.state.errors.map(err => <p key={err} className="text-red-400 ml-4">※ {err}</p>)}
 
                     <h2>配送オプション</h2>
 
@@ -125,18 +124,7 @@ export default function CheckoutStep2Page({data}) {
 }
 
 export async function getServerSideProps(ctx) {
-    const data = await getPaymentForm(ctx, 1);
-
-    if (data.errors.some(err => err.type === ERR_UNAUTHORIZED)) {
-        return {
-            redirect: {
-                permanent: false,
-                destination: "/login",
-            },
-            props:{},
-        }
-    }
-
+    const data = {};
     const deliveryableDetas = () => {
         const now = new Date().getTime();
         const unit = 1000 * 60 * 60 * 24;

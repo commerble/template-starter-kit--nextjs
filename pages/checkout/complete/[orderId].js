@@ -1,22 +1,29 @@
 import { ArrowDownIcon, ArrowRightIcon, CheckCircleIcon, CubeIcon, CurrencyYenIcon, TruckIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/dist/client/router";
 import { CartLine } from "../../../components/CartLine";
-import { getComplete } from "../../../libs/cbpaas";
 import Link from "next/link";
+import useCommerble from "../../../libs/commerble";
+import { useEffect } from "react";
 
 export default function CheckoutCompletePage({data}) {
     const router = useRouter();
+    const cb = useCommerble();
+
+    useEffect(() => {
+        cb.getCompleteInfo(1, data.orderId)
+    }, [])
+
     return <div className="layout-2col">
         <div className="layout-2col__col bg-white">
             <div className="p-2 md:p-4 md:px-8">
-                <Link href="/">
-                    <a className="logo">Commerble Shop</a>
+                <Link href="/" className="logo">
+                    Commerble Shop
                 </Link>
             </div>
             <h1 className="text-center my-8 text-indigo-900 text-4xl">Thank you :)</h1>
             <div className="x-center gap-8  w-full">
                     <section className="cart-items">
-                    {data.items.map(item => (
+                    {cb.data.complete?.items.map(item => (
                         <CartLine 
                             key={item.productId}
                             productId={item.productId}
@@ -49,27 +56,18 @@ export default function CheckoutCompletePage({data}) {
                 <hr/>
 
                 <div className="flex flex-col items-center gap-4">
-                    <button className="btn btn-blue h-14 w-full text-lg relative" onClick={() => {}}>注文履歴を確認する<ArrowRightIcon className="absolute right-4 inline-block w-8 h-8"/></button>
-                    <Link href="/">
-                        <a className="btn btn-gray h-14 w-full text-lg relative" onClick={() => router.push('/')}>ショッピングをつづける<ArrowRightIcon className="absolute right-4 inline-block w-8 h-8"/></a>
+                    {/* <button className="btn btn-blue h-14 w-full text-lg relative" onClick={() => {}}>注文履歴を確認する<ArrowRightIcon className="absolute right-4 inline-block w-8 h-8"/></button> */}
+                    <Link href="/" className="btn btn-gray h-14 w-full text-lg relative">
+                        ショッピングをつづける<ArrowRightIcon className="absolute right-4 inline-block w-8 h-8"/>
                     </Link>
                 </div>
             </div>
         </div>
     </div>
 }
-
 export async function getServerSideProps(ctx) {
-    const data = await getComplete(ctx, 1, ctx.params.orderId);
-
-    if (data.errors.some(err => err.type === ERR_UNAUTHORIZED)) {
-        return {
-            redirect: {
-                permanent: false,
-                destination: "/login",
-            },
-            props:{},
-        }
+    const data = {
+        orderId: ctx.params.orderId
     }
 
     return { props: { data: data } }

@@ -21,7 +21,7 @@
 }
 
 .global-header {
-  @apply bg-white py-2 md:py-4;
+  @apply py-2 md:py-4;
 }
 
 .global-header__container {
@@ -55,6 +55,9 @@
 }
 .btn-blue {
   @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
+}
+.btn-blue:disabled {
+  @apply bg-blue-300 cursor-not-allowed;
 }
 
 .btn-gray {

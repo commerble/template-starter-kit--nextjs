@@ -1,1 +1,0 @@
-export const ERR_UNAUTHORIZED = 'Unauthorized';

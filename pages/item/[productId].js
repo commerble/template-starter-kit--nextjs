@@ -1,25 +1,24 @@
-import { get } from "../../libs/cbpaas";
+import { useState } from "react";
+import { useRouter } from "next/dist/client/router";
+import { SunIcon } from "@heroicons/react/outline";
+import cms from '../../libs/cms'
+import useCommerble from "../../libs/commerble";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { Price } from "../../components/Price";
-import { useState } from "react";
-import axios from "axios";
-import { useRouter } from "next/dist/client/router";
-import { SunIcon } from "@heroicons/react/outline";
 
 export default function Home({data}) {
   const router = useRouter();
   const item = data.products[0];
   const [mainImage, setMainImage] = useState(item.images[0]);
   const [isLoading, setLoading] = useState(false);
+  const cb = useCommerble();
 
   const cartin = async () => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/cart', [{item: item.id}])
-      if (res.status === 200) {
-        router.push('/cart');
-      }
+      await cb.appendLines([{item: item.id, qty: 1}]);
+      router.push('/cart', undefined, { shallow: true });
     }
     finally {
       setLoading(false);
@@ -46,19 +45,13 @@ export default function Home({data}) {
           </button>
         </section>
         </div>
-      {/* <pre className="w-full overflow-x-scroll">{"//DEBUG\n" + JSON.stringify(data, null, '\t')}</pre> */}
     </main>
     <Footer/>
   </>)
 }
 
 export async function getServerSideProps(ctx) {
-  const res = await get(ctx, '/item/' + ctx.params.productId);
-
-  if (res.statusCode !== 200)
-    throw new Error(res.statusMessage);
-
-  const data = JSON.parse(res.body);
+  const data = await cms('/item/' + ctx.params.productId);
 
   return { props: { data: data } }
 }
