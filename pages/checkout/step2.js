@@ -16,11 +16,11 @@ export default function CheckoutStep2Page({data}) {
 
     useEffect(() => {
         cb.getPaymentForm(1)
-    }, [])
+    }, [cb])
 
     useEffect(() => {
         reset(cb.data.payment);
-    }, [cb.data.payment]);
+    }, [reset, cb.data.payment]);
 
     const onSubmit = async (data) => {
         await cb.postPaymentForm(1, data);

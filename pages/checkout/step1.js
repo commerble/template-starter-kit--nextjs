@@ -16,11 +16,11 @@ export default function CheckoutStep1Page({data}) {
 
     useEffect(() => {
         cb.getShippingForm(1)
-    }, [])
+    }, [cb])
     
     useEffect(() => {
         reset(cb.data.shipping);
-    }, [cb.data.shipping]);
+    }, [reset, cb.data.shipping]);
 
     const onSubmit = async (data) => {
         data.orderCustomerOrderedAddress.recipientlastname = data.customer.lastName;

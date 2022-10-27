@@ -9,7 +9,6 @@ export const config = {
   },
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
   const proxy = httpProxyMiddleware(req, res, {
     target: process.env.CBPAAS_EP,
