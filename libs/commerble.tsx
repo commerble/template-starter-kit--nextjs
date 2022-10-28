@@ -15,7 +15,7 @@ export const CommerbleRouting: React.FC<PropsWithChildren<{}>> = (props) => {
     const cb = useCommerble();
     useEffect(() => {
         if (cb.data.shipping) {
-            router.push(`/checkout/step1`,undefined,{shallow:true});
+            router.push(`/checkout/step1`);
         }
     }, [!!cb.data.shipping])
     useEffect(() => {
