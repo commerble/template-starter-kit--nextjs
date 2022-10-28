@@ -15,27 +15,27 @@ export const CommerbleRouting: React.FC<PropsWithChildren<{}>> = (props) => {
     const cb = useCommerble();
     useEffect(() => {
         if (cb.data.shipping) {
-            router.push(`/checkout/step1`, undefined,{shallow:true});
+            router.push(`/checkout/step1`,undefined,{shallow:true});
         }
     }, [!!cb.data.shipping])
     useEffect(() => {
         if (cb.data.payment) {
-            router.push(`/checkout/step2`, undefined,{shallow:true});
+            router.push(`/checkout/step2`);
         }
     }, [!!cb.data.payment])
     useEffect(() => {
         if (cb.data.confirm) {
-            router.push(`/checkout/confirm`, undefined,{shallow:true});
+            router.push(`/checkout/confirm`);
         }
     }, [!!cb.data.confirm])
     useEffect(() => {
         if (cb.data.complete?.orderId) {
-            router.push(`/checkout/complete/${cb.data.complete.orderId}`, undefined,{shallow:true});
+            router.push(`/checkout/complete/${cb.data.complete.orderId}`);
         }
     }, [cb.data.complete?.orderId])
     useEffect(() => {
         if (cb.data.external?.orderId) {
-            router.push(`/checkout/external/${cb.data.external.orderId}`, undefined,{shallow:true});
+            router.push(`/checkout/external/${cb.data.external.orderId}`);
         }
     }, [cb.data.external?.orderId])
     return <>{props.children}</>
