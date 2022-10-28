@@ -94,6 +94,9 @@ const httpProxyMiddleware = async (
             const location = proxyRes.headers['location'];
             proxyRes.headers['location'] = rewritePath(location, locationRewrite);
         }
+        if (proxyRes.headers['set-cookie']) {
+          console.log(proxyRes.headers['set-cookie'])
+        }
         resolve(proxyRes);
       }) as any)
       .once("error", reject)
