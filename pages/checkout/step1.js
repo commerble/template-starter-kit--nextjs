@@ -2,7 +2,7 @@ import { useRouter } from "next/dist/client/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { CartLine } from "../../components/CartLine";
-import { ArrowRightIcon } from "@heroicons/react/outline";
+import { ArrowRightIcon, SunIcon } from "@heroicons/react/outline";
 import Link from "next/link";
 import useCommerble from "../../libs/commerble";
 
@@ -23,12 +23,18 @@ export default function CheckoutStep1Page({data}) {
     }, [reset, cb.data.shipping]);
 
     const onSubmit = async (data) => {
-        data.orderCustomerOrderedAddress.recipientlastname = data.customer.lastName;
-        data.orderCustomerOrderedAddress.recipientfirstname = data.customer.firstName;
-        data.orderCustomerOrderedAddress.recipientlastnamekana = data.customer.lastNameKana;
-        data.orderCustomerOrderedAddress.recipientfirstnamekana = data.customer.firstNameKana;
-        data.deliveryOrderAddress = data.orderCustomerOrderedAddress;
-        await cb.postShippingForm(1, data);
+        try{
+            setLoading(true);
+            data.orderCustomerOrderedAddress.recipientlastname = data.customer.lastName;
+            data.orderCustomerOrderedAddress.recipientfirstname = data.customer.firstName;
+            data.orderCustomerOrderedAddress.recipientlastnamekana = data.customer.lastNameKana;
+            data.orderCustomerOrderedAddress.recipientfirstnamekana = data.customer.firstNameKana;
+            data.deliveryOrderAddress = data.orderCustomerOrderedAddress;
+            await cb.postShippingForm(1, data);
+        }
+        finally{
+            setLoading(false);
+        }
     }
 
     const searchZipCode = async () => {
@@ -156,7 +162,10 @@ export default function CheckoutStep1Page({data}) {
                     <hr/>
 
                     <div className="flex flex-col items-center gap-4">
-                        <button type="submit" className="btn-blue h-14 w-full text-lg relative">この住所に届ける <ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/></button>
+                        <button type="submit" className="btn-blue h-14 w-full text-lg relative">
+                            {isLoading ? (<SunIcon className="inline-block w-6 h-6 animate-spin"/>):(<>この住所に届ける</>)} 
+                            <ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/>
+                        </button>
                         <button className="h-14 w-full text-lg">別の住所に届ける</button>
                     </div>
                 </div>
