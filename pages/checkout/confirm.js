@@ -1,10 +1,10 @@
-import { ArrowLeftIcon } from "@heroicons/react/outline";
+import { ArrowLeftIcon, SunIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/dist/client/router";
 import { CartLine } from "../../components/CartLine";
 import Link from "next/link";
 import { CartSummary } from "../../components/CartSummary";
 import useCommerble from "../../libs/commerble";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const paymentMethodText = {
     None: '指定なし',
@@ -24,13 +24,20 @@ const formatter = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'lo
 export default function CheckoutConfirmPage({data}) {
     const router = useRouter();
     const cb = useCommerble();
+    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
         cb.getConfirmInfo(1)
     },[])
 
     const purchase = async () => {
-        await cb.purchase();
+        try{
+            setLoading(true);
+            await cb.purchase();
+        }
+        finally{
+            setLoading(false);
+        }
     };
 
     return <div className="layout-2col">
@@ -57,7 +64,6 @@ export default function CheckoutConfirmPage({data}) {
                             hiddenActions/>
                     ))}
                 </section>
-                {/* <pre className="w-full overflow-x-scroll">{"//DEBUG INFO\n" + JSON.stringify(data, null, '\t')}</pre> */}
             </div>
         </div>
         <div className="layout-2col__col x-center pt-16">
@@ -98,7 +104,9 @@ export default function CheckoutConfirmPage({data}) {
                 <hr/>
 
                 <div className="flex flex-col items-center gap-4">
-                    <button className="btn-blue h-14 w-full text-lg relative" onClick={purchase}>購入する</button>
+                    <button className="btn-blue h-14 w-full text-lg relative" onClick={purchase}>
+                        {isLoading ? (<SunIcon className="inline-block w-6 h-6 animate-spin"/>):(<>購入する</>)}
+                    </button>
                     <button className="h-14 w-full text-lg relative" onClick={() => router.push('/checkout/step2')}>
                         <ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>もどる</button>
                 </div>

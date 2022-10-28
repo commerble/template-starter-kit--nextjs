@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/outline";
+import { ArrowLeftIcon, ArrowRightIcon, SunIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/dist/client/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,7 +23,13 @@ export default function CheckoutStep2Page({data}) {
     }, [reset, cb.data.payment]);
 
     const onSubmit = async (data) => {
-        await cb.postPaymentForm(1, data);
+        try{
+            setLoading(true);
+            await cb.postPaymentForm(1, data);
+        }
+        finally{
+            setLoading(false);
+        }
     }
 
     return <>
@@ -114,7 +120,10 @@ export default function CheckoutStep2Page({data}) {
                     <hr/>
 
                     <div className="flex flex-col items-center gap-4">
-                        <button type="submit" className="btn-blue h-14 w-full text-lg relative">確認 <ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/></button>
+                        <button type="submit" className="btn-blue h-14 w-full text-lg relative">
+                            {isLoading ? (<SunIcon className="inline-block w-6 h-6 animate-spin"/>):(<>確認</>)}
+                            <ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/>
+                        </button>
                         <button type="button" className="h-14 w-full text-lg relative" onClick={() => router.push('/checkout/step1')}><ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>もどる</button>
                     </div>
                 </div>

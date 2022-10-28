@@ -18,7 +18,7 @@ export default function Home({data}) {
     setLoading(true);
     try {
       await cb.appendLines([{item: item.id, qty: 1}]);
-      router.push('/cart', undefined, { shallow: true });
+      router.push('/cart');
     }
     finally {
       setLoading(false);
