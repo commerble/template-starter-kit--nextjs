@@ -94,8 +94,14 @@ const httpProxyMiddleware = async (
             const location = proxyRes.headers['location'];
             proxyRes.headers['location'] = rewritePath(location, locationRewrite);
         }
-        if (proxyRes.headers['set-cookie']) {
-          console.log(proxyRes.headers['set-cookie'])
+        if (proxyRes.headers['set-cookie'] && proxyRes.headers['set-cookie'].length > 0) {
+          proxyRes.headers['set-cookie'] = proxyRes.headers['set-cookie'].map(cookie => {
+            if (cookie.startsWith('.ASPXAUTH=;')) {
+              return `.ASPXAUTH=; expires=${(new Date(new Date().getTime() - 10_000)).toUTCString()}; path=/; secure; HttpOnly; SameSite=None`;
+            }
+            return cookie;
+          })
+          console.log(proxyRes.headers['set-cookie'][0])
         }
         resolve(proxyRes);
       }) as any)
