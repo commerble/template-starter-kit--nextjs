@@ -97,7 +97,7 @@ const httpProxyMiddleware = async (
         if (proxyRes.headers['set-cookie'] && proxyRes.headers['set-cookie'].length > 0) {
           proxyRes.headers['set-cookie'] = proxyRes.headers['set-cookie'].map(cookie => {
             if (cookie.startsWith('.ASPXAUTH=;')) {
-              return `.ASPXAUTH=; max-age=0; path=/; secure; httponly; samesite=lax`;
+              return `.ASPXAUTH=; max-age=0; path=/; secure; httponly; samesite=none`;
             }
             return cookie;
           })
