@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import httpProxyMiddleware from '../../../libs/proxy';
 import https from 'https'
+import { URL } from "url";
 
 export const config = {
   api: {
@@ -25,7 +26,11 @@ export default (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
     ],
     locationRewrite: [
       {
-        patternStr: '^' + process.env.CBPAAS_PREFIX,
+        patternStr: '^' + process.env.CBPAAS_EP,
+        replaceStr: '/api/ec'
+      },
+      {
+        patternStr: '^' + new URL(process.env.CBPAAS_EP).pathname,
         replaceStr: '/api/ec'
       }
     ],

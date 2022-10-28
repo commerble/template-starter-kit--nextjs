@@ -15,27 +15,27 @@ export const CommerbleRouting: React.FC<PropsWithChildren<{}>> = (props) => {
     const cb = useCommerble();
     useEffect(() => {
         if (cb.data.shipping) {
-            router.push(`/checkout/step1`);
+            router.push(`/checkout/step1`, undefined, {shallow:true});
         }
     }, [!!cb.data.shipping])
     useEffect(() => {
         if (cb.data.payment) {
-            router.push(`/checkout/step2`);
+            router.push(`/checkout/step2`, undefined, {shallow:true});
         }
     }, [!!cb.data.payment])
     useEffect(() => {
         if (cb.data.confirm) {
-            router.push(`/checkout/confirm`);
+            router.push(`/checkout/confirm`, undefined, {shallow:true});
         }
     }, [!!cb.data.confirm])
     useEffect(() => {
         if (cb.data.complete?.orderId) {
-            router.push(`/checkout/complete/${cb.data.complete.orderId}`);
+            router.push(`/checkout/complete/${cb.data.complete.orderId}`, undefined, {shallow:true});
         }
     }, [cb.data.complete?.orderId])
     useEffect(() => {
         if (cb.data.external?.orderId) {
-            router.push(`/checkout/external/${cb.data.external.orderId}`);
+            router.push(`/checkout/external/${cb.data.external.orderId}`, undefined, {shallow:true});
         }
     }, [cb.data.external?.orderId])
     return <>{props.children}</>
@@ -48,11 +48,15 @@ const useCommerble = () => {
     })
     const setCarts = (carts: CommerbleCart[]) => {
         mutate({
-            ...data,
             carts,
+            shipping: null,
+            payment: null,
+            confirm: null,
+            complete: null,
+            external: null,
         });
     }
-    
+
     return {
         data,
         getCarts() {
@@ -71,7 +75,7 @@ const useCommerble = () => {
         async tryCheckouting(cart: CommerbleCart, asGuest: boolean){
             const res = await tryCheckouting(cart, asGuest, config.rootPrefix);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(config.loginUrl, undefined, { shallow: true });
             }
             else if (res[0] === 'shipping') {
                 mutate({
