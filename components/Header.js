@@ -5,7 +5,7 @@ export const Header = ({ simple }) => {
         <nav className="global-header__container">
             <div className="flex justify-between items-center">
                 <Link href="/" className="font-bold text-xl text-indigo-600">
-                    Commerble Shop
+                    iwate Shop
                 </Link>
             </div>
             {!simple&&(
