@@ -68,7 +68,7 @@ export default function CheckoutStep2Page({data}) {
 
                     <div className="field">
                         <label>お届け日</label>
-                        <select {...register('deliveryOrder.deliveryDate', { required: false })}>
+                        <select {...register('deliveryOrder.deliveryDate', { required: false, valueAsDate: false })}>
                             <option value="">---</option>
                             {data.deliveryDateOptions.map(d => <option key={d.value} value={d.value}>{d.text}</option>)}
                         </select>

@@ -105,6 +105,10 @@ const useCommerble = () => {
             return res[0];
         },
         async postShippingForm(cartId: number, form: CommerbleShippingForm) {
+            mutate({
+                ...data,
+                payment: null
+            });
             const res = await postShippingForm(cartId, form);
             if (res[0] === 'login') {
                 router.push(config.loginUrl);
@@ -140,6 +144,10 @@ const useCommerble = () => {
             return res[0];
         },
         async postPaymentForm(cartId: number, form: CommerblePaymentForm) {
+            mutate({
+                ...data,
+                confirm: null
+            });
             const res = await postPaymentForm(cartId, form);
             if (res[0] === 'login') {
                 router.push(config.loginUrl);
@@ -175,6 +183,11 @@ const useCommerble = () => {
             return res[0];
         },
         async purchase() {
+            mutate({
+                ...data,
+                external: null,
+                complete: null,
+            });
             const res = await purchase(data.confirm.id, data.confirm.token);
             if (res[0] === 'login') {
                 router.push(config.loginUrl);
@@ -188,12 +201,19 @@ const useCommerble = () => {
             else if (res[0] === 'complete') {
                 mutate({
                     ...data,
+                    shipping: null,
+                    payment: null,
+                    confirm: null,
+                    external: null,
                     complete: res[1]
                 })
             }
             else if (res[0] === 'external') {
                 mutate({
                     ...data,
+                    shipping: null,
+                    payment: null,
+                    confirm: null,
                     external: res[1]
                 })
             }
