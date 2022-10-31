@@ -25,7 +25,15 @@
             Thumbnail = prefix + item.ProductId + "/Large"
         }),
         Errors = new object[]{},
-        DeliveryOrder = order.DeliveryOrder,
+        DeliveryOrder = new {
+            DeliveryDate = payment.DeliveryOrder.DeliveryDate?.ToString("yyyy/MM/dd"),
+            payment.DeliveryOrder.DeliveryNo,
+            payment.DeliveryOrder.HourRange,
+            payment.DeliveryOrder.MailAddr,
+            payment.DeliveryOrder.SenderName,
+            payment.DeliveryOrder.ShipSourceId,
+            payment.DeliveryOrder.WrappingType,
+        },
         DeliveryOrderAddress = order.DeliveryOrderAddress,
         OrderCustomer = order.OrderCustomer,
         OrderCustomerOrderedAddress = order.OrderCustomerOrderedAddress,
