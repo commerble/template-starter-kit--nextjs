@@ -1,0 +1,22 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var orders = Page.ViewData.Model as IEnumerable<PurchaseOrder>;
+
+    int page = 0, eachPage = 10, total = orders.Count();
+    int.TryParse((Page.Request.QueryString["page"] ?? "0"), out page);
+    var data = new {
+        CurrentPage = page,
+        TotalPage = total / eachPage + Math.Min(1, total % eachPage),
+        Items = orders.Skip(page * eachPage).Take(eachPage).Select(o => new {
+            Id = o.OrderId,
+            o.OrderDate,
+            o.OrderStatus,
+            o.TotalPayment,
+            o.PaymentMethod,
+        })
+
+    };
+    @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
+}

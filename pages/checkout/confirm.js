@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CartSummary } from "../../components/CartSummary";
 import useCommerble from "../../libs/commerble";
 import { useEffect, useState } from "react";
+import { Button } from "../../components/Button";
 
 const paymentMethodText = {
     None: '指定なし',
@@ -24,7 +25,7 @@ const formatter = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'lo
 export default function CheckoutConfirmPage({data}) {
     const router = useRouter();
     const cb = useCommerble();
-    const [isLoading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(null);
 
     useEffect(() => {
         cb.getConfirmInfo(1)
@@ -32,13 +33,19 @@ export default function CheckoutConfirmPage({data}) {
 
     const purchase = async () => {
         try{
-            setLoading(true);
+            setLoading('submit');
             await cb.purchase();
         }
         finally{
-            setLoading(false);
+            setLoading(null);
         }
     };
+
+    const back = () => {
+        setLoading('back');
+        cb.clearFormCache();
+        router.push('/checkout/step2');
+    }
 
     return <div className="layout-2col">
         <div className="layout-2col__col bg-white">
@@ -77,7 +84,7 @@ export default function CheckoutConfirmPage({data}) {
                     chargePoint={cb.data.confirm?.chargePointSummary}
                     total={cb.data.confirm?.totalPayment}
                     tax10ofTotal={cb.data.confirm?.totalPayment}
-                    tax8ofTotal={cb.data.confirm?.totalPayment}/>
+                    tax8ofTotal={0}/>
 
                 <h2>お支払方法</h2>
                 <p>{paymentMethodText[cb.data.confirm?.paymentMethod]}</p>
@@ -99,16 +106,27 @@ export default function CheckoutConfirmPage({data}) {
                 </p>
 
                 <h2>お届け日時</h2>
-                <p>{cb.data.confirm && formatter.format(new Date(cb.data.confirm?.deliveryOrder.deliveryDate))}（時間帯：{cb.data.confirm && hourRange[cb.data.confirm?.deliveryOrder.hourRange]}）</p>
+                <p>{cb.data.confirm && cb.data.confirm?.deliveryOrder.deliveryDate ? formatter.format(new Date(cb.data.confirm?.deliveryOrder.deliveryDate)) : '指定なし'}（時間帯：{cb.data.confirm && hourRange[cb.data.confirm?.deliveryOrder.hourRange]}）</p>
 
                 <hr/>
 
                 <div className="flex flex-col items-center gap-4">
-                    <button className="btn-blue h-14 w-full text-lg relative" onClick={purchase}>
-                        {isLoading ? (<SunIcon className="inline-block w-6 h-6 animate-spin"/>):(<>購入する</>)}
-                    </button>
-                    <button className="h-14 w-full text-lg relative" onClick={() => router.push('/checkout/step2')}>
-                        <ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>もどる</button>
+                    <Button
+                        loading={loading==='submit'}
+                        disabled={loading}
+                        type="submit"
+                        looks="primary"
+                        className="w-full"
+                        onClick={purchase}
+                        >購入する</Button>
+                    <Button
+                        loading={loading==='back'}
+                        disabled={loading}
+                        looks="text"
+                        className="w-full"
+                        leftIcon={<ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>}
+                        onClick={back}
+                        >もどる</Button>
                 </div>
             </div>
         </div>

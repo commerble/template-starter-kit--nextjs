@@ -10,7 +10,7 @@ export const Header = ({ simple }) => {
             </div>
             {!simple&&(
                 <div className="flex flex-row ml-auto mt-0">
-                    <Link href="#" className="p-2 lg:px-4 md:mx-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-700 transition-colors duration-300">
+                    <Link href="/mypage" className="p-2 lg:px-4 md:mx-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-700 transition-colors duration-300">
                         MY PAGE
                     </Link>
                     <Link href="/cart" className="p-2 lg:px-4 md:mx-2 text-gray-600 rounded hover:bg-gray-200 hover:text-gray-700 transition-colors duration-300">

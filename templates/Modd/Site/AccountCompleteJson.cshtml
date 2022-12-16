@@ -1,0 +1,12 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
+    /*var token = viewData.Messages.FirstOrDefault(msg => msg.StartsWith("Activate.Token"));
+    if (token != null) {
+        viewData.Messages.Remove(token);
+    }*/
+    @:@Raw(Jil.JSON.Serialize(new {
+        State = viewData,
+    }, Jil.Options.ISO8601CamelCase))
+}

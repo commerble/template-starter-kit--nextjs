@@ -1,15 +1,28 @@
 @{
     Layout = null;
     Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
+    var cart = Page.ViewData.Model as HistoryCart;
     var tag = Page.Html.SessionAntiForgeryToken().ToString();
     var token = Regex.Match(tag, @"value=""(.*?)""").Groups[1].Value;
-    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
-    var cart = Page.ViewData.Model as ShoppingCartBase;
     var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
     var data = new {
-        Token = token,
-        Id = cart.CartDefinition.CartId,
-        Items = cart.Items.Select(item => new {
+        Id = cart.OrderId,
+        cart.OrderDate,
+        cart.OrderStatus,
+        cart.TotalPayment,
+        cart.PaymentMethod,
+        cart.PaymentStatus,
+        cart.Subtotal,
+        cart.DiscountPrice,
+        cart.DeliveryCharge,
+        cart.TotalUsagePoint,
+        cart.ChargePointSummary,
+        cart.CanCancel,
+        cart.CanModify,
+        CanModifyPaymentMethod = cart.CanModifyPaymentMethod(),
+        Items = cart.ExpandItems.Select(item => new {
+            OrderLineType = item.OrderLineType,
             ProductId = item.ProductId,
             ProductName = item.Product.Name,
             RequestAmount = item.RequestAmount,
@@ -19,7 +32,7 @@
             ExternalId3 = item.Product.ExternalId3,
             ExternalId4 = item.Product.ExternalId4,
             UnitPriceWithoutTax = item.UnitPrice,
-            UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(item.ProductId),
+            UnitPriceWithTax = (item.LinePrice + item.DiscountPrice) / item.OrderAmount,
             DiscountPrice = item.DiscountPrice,
             LinePrice = item.LinePrice,
             Tax = item.Tax,
@@ -32,19 +45,12 @@
             DetailErrorMessage = error.DetailErrorMessage,
             Item = error.Item?.ProductId,
         }),
-        DeliveryOrder = cart.DeliveryOrder,
-        DeliveryOrderAddress = cart.DeliveryOrderAddress,
-        OrderCustomer = cart.OrderCustomer,
-        OrderCustomerOrderedAddress = cart.OrderCustomerOrderedAddress,
-        OrderCustomerInvoiceAddress = cart.OrderCustomerInvoiceAddress,
-        ServiceValues = cart.ServiceValues,
-        Subtotal = cart.Subtotal,
-        DiscountPrice = cart.DiscountPrice,
-        DeliveryCharge = cart.DeliveryCharge,
-        TotalPayment = cart.TotalPayment,
-        TotalUsagePoint = cart.TotalUsagePoint,
-        ChargePointSummary = cart.ChargePointSummary,
-        PaymentMethod = cart.PaymentMethod,
+        cart.DeliveryOrder,
+        cart.DeliveryOrderAddress,
+        cart.OrderCustomer,
+        cart.OrderCustomerOrderedAddress,
+        cart.OrderCustomerInvoiceAddress,
+        cart.ServiceValues,
     };
     @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
 }

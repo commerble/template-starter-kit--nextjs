@@ -241,3 +241,10 @@
   width: 460px;
   max-width: 100%;
 }
+
+ul.menu {
+  @apply flex flex-col p-8 gap-2 max-w-xl;
+  li {
+    @apply p-4 btn bg-white text-blue-800 relative;
+  }
+}

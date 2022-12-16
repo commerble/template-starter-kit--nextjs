@@ -5,6 +5,6 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Cache-Control', 's-maxage=86400');
     res.json({
         rootPrefix: new URL(process.env.CBPAAS_EP).pathname,
-        loginUrl: '/cart#login'
+        loginUrl: '/login'
     });
 }

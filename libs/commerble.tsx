@@ -1,6 +1,7 @@
-import React, { createContext, PropsWithChildren, useContext, useEffect } from 'react';
+import React, { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/dist/client/router';
 import useSWR from 'swr';
+import config from './config';
 
 const initialData: CommerbleState = {
     carts:[],
@@ -9,45 +10,60 @@ const initialData: CommerbleState = {
     confirm: null,
     complete: null,
     external: null,
+    login: null,
+    register: null,
+    registerConfirm: null,
+    registerComplete: null,
+    memberIndex: null,
 } 
 export const CommerbleRouting: React.FC<PropsWithChildren<{}>> = (props) => {
     const router = useRouter();
     const cb = useCommerble();
     useEffect(() => {
         if (cb.data.shipping) {
-            router.push(`/checkout/step1`, undefined, {shallow:true});
+            router.push(config.purchaseShippingUrl, undefined, {shallow:true});
         }
     }, [!!cb.data.shipping])
     useEffect(() => {
         if (cb.data.payment) {
-            router.push(`/checkout/step2`, undefined, {shallow:true});
+            router.push(config.purchasePaymentUrl, undefined, {shallow:true});
         }
     }, [!!cb.data.payment])
     useEffect(() => {
         if (cb.data.confirm) {
-            router.push(`/checkout/confirm`, undefined, {shallow:true});
+            router.push(config.purchaseConfirmUrl, undefined, {shallow:true});
         }
     }, [!!cb.data.confirm])
     useEffect(() => {
         if (cb.data.complete?.orderId) {
-            router.push(`/checkout/complete/${cb.data.complete.orderId}`, undefined, {shallow:true});
+            router.push(config.purchaseCompleteUrl + cb.data.complete.orderId, undefined, {shallow:true});
         }
     }, [cb.data.complete?.orderId])
     useEffect(() => {
         if (cb.data.external?.orderId) {
-            router.push(`/checkout/external/${cb.data.external.orderId}`, undefined, {shallow:true});
+            router.push(config.purchaseExternalUrl + cb.data.complete.orderId, undefined, {shallow:true});
         }
     }, [cb.data.external?.orderId])
+    useEffect(() => {
+        if (cb.data.registerConfirm) {
+            router.push(config.registerConfirmUrl, undefined, {shallow:true});
+        }
+    }, [!!cb.data.registerConfirm])
+    useEffect(() => {
+        if (cb.data.registerComplete) {
+            router.push(config.registerCompleteUrl, undefined, {shallow:true});
+        }
+    }, [!!cb.data.registerComplete])
     return <>{props.children}</>
 }
 const useCommerble = () => {
-    const config = useContext(CommerbleContext);
     const router = useRouter();
     const { data, mutate} = useSWR('commerble', null, {
         fallbackData: initialData
     })
     const setCarts = (carts: CommerbleCart[]) => {
         mutate({
+            ...data,
             carts,
             shipping: null,
             payment: null,
@@ -56,9 +72,38 @@ const useCommerble = () => {
             external: null,
         });
     }
-
+    let loginUrl = config.loginUrl;
+    if (typeof window !== "undefined") {
+        const url = new URL(config.loginUrl, window.location as unknown as URL);
+        url.searchParams.append('returnUrl',router.asPath);
+        loginUrl = url.href;
+    }
     return {
         data,
+        hasDestinationAddress() {
+            if (!data.shipping?.deliveryOrderAddress?.recipientlastname
+            && !data.shipping?.deliveryOrderAddress?.recipientfirstname
+            && !data.shipping?.deliveryOrderAddress?.recipientlastnamekana
+            && !data.shipping?.deliveryOrderAddress?.recipientfirstnamekana
+            && !data.shipping?.deliveryOrderAddress?.zipCode
+            && !data.shipping?.deliveryOrderAddress?.city
+            && !data.shipping?.deliveryOrderAddress?.pref
+            && !data.shipping?.deliveryOrderAddress?.street
+            && !data.shipping?.deliveryOrderAddress?.building
+            && !data.shipping?.deliveryOrderAddress?.tel)
+                return false;
+            
+            return data.shipping?.orderCustomerOrderedAddress?.recipientlastname != data.shipping?.deliveryOrderAddress?.recipientlastname
+            || data.shipping?.orderCustomerOrderedAddress?.recipientfirstname != data.shipping?.deliveryOrderAddress?.recipientfirstname
+            || data.shipping?.orderCustomerOrderedAddress?.recipientlastnamekana != data.shipping?.deliveryOrderAddress?.recipientlastnamekana
+            || data.shipping?.orderCustomerOrderedAddress?.recipientfirstnamekana != data.shipping?.deliveryOrderAddress?.recipientfirstnamekana
+            || data.shipping?.orderCustomerOrderedAddress?.zipCode != data.shipping?.deliveryOrderAddress?.zipCode
+            || data.shipping?.orderCustomerOrderedAddress?.city != data.shipping?.deliveryOrderAddress?.city
+            || data.shipping?.orderCustomerOrderedAddress?.pref != data.shipping?.deliveryOrderAddress?.pref
+            || data.shipping?.orderCustomerOrderedAddress?.street != data.shipping?.deliveryOrderAddress?.street
+            || data.shipping?.orderCustomerOrderedAddress?.building != data.shipping?.deliveryOrderAddress?.building
+            || data.shipping?.orderCustomerOrderedAddress?.tel != data.shipping?.deliveryOrderAddress?.tel
+        },
         getCarts() {
             return getCarts().then(setCarts);
         },
@@ -75,7 +120,7 @@ const useCommerble = () => {
         async tryCheckouting(cart: CommerbleCart, asGuest: boolean){
             const res = await tryCheckouting(cart, asGuest, config.rootPrefix);
             if (res[0] === 'login') {
-                router.push(config.loginUrl, undefined, { shallow: true });
+                router.push(loginUrl);
             }
             else if (res[0] === 'shipping') {
                 mutate({
@@ -94,7 +139,7 @@ const useCommerble = () => {
         async getShippingForm(cartId: number) {
             const res = await getShippingForm(cartId);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'shipping') {
                 mutate({
@@ -111,7 +156,7 @@ const useCommerble = () => {
             });
             const res = await postShippingForm(cartId, form);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'shipping') {
                 mutate({
@@ -133,7 +178,7 @@ const useCommerble = () => {
             }
             const res = await getPaymentForm(cartId);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'payment') {
                 mutate({
@@ -150,7 +195,7 @@ const useCommerble = () => {
             });
             const res = await postPaymentForm(cartId, form);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'payment') {
                 mutate({
@@ -166,13 +211,20 @@ const useCommerble = () => {
             }
             return res[0];
         },
+        clearFormCache() {
+            mutate({
+                ...data,
+                shipping: null,
+                payment: null,
+            })
+        },
         async getConfirmInfo(cartId: number) {
             if (data.confirm) {
                 return Promise.resolve(data.confirm);
             }
             const res = await getConfirmInfo(cartId);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'confirm') {
                 mutate({
@@ -190,7 +242,7 @@ const useCommerble = () => {
             });
             const res = await purchase(data.confirm.id, data.confirm.token);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'error') {
                 mutate({
@@ -225,7 +277,7 @@ const useCommerble = () => {
             }
             const res = await getCompleteInfo(cartId, orderId);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'complete') {
                 mutate({
@@ -241,7 +293,7 @@ const useCommerble = () => {
             }
             const res = await getExternalInfo(cartId, orderId);
             if (res[0] === 'login') {
-                router.push(config.loginUrl);
+                router.push(loginUrl);
             }
             else if (res[0] === 'complete') {
                 mutate({
@@ -249,13 +301,101 @@ const useCommerble = () => {
                     complete: res[1]
                 });
             }
-            if (res[0] === 'external') {
+            else if (res[0] === 'external') {
                 mutate({
                     ...data,
                     external: res[1]
                 });
             }
             return res[0];
+        },
+        async getRegisterForm() {
+            if (data.register){
+                mutate({
+                    ...data,
+                    registerConfirm:null,
+                    registerComplete: null,
+                })
+                return;
+            }
+            const res = await getSiteAccount();
+            mutate({
+                ...data,
+                registerConfirm:null,
+                register: res
+            })
+        },
+        async postRegisterForm(form: CommerbleRegisterForm) {
+            const res = await confirmSiteAccount(form);
+            if (res[0] === 'confirm') {
+                mutate({
+                    ...data,
+                    registerConfirm: res[1],
+                    registerComplete: null,
+                })
+            }
+            else if (res[0] === 'form') {
+                mutate({
+                    ...data,
+                    register: res[1],
+                    registerConfirm:null,
+                })
+            }
+        },
+        async register(info: CommerbleRegisterConfirmInfo) {
+            const res = await createSiteAccount(info);
+            if (res[0] === 'complete') {
+                mutate({
+                    ...data,
+                    register: null,
+                    registerComplete: res[1],
+                })
+            }
+            else if(res[0] === 'form') {
+                mutate({
+                    ...data,
+                    register: res[1]
+                })
+            }
+            
+        },
+        async activate(token: string) {
+            await getSiteActivate(token);
+        },
+        async getLoginForm(returnUrl: string) {
+            const res = await getLoginForm(returnUrl);
+            mutate({
+                ...data,
+                login: res
+            });
+        },
+        async login(form: CommerbleLoginForm) {
+            const res = await login(form, config.rootPrefix);
+            if (res[0] === 'succeeded') {
+                router.push(res[1]);
+            }
+            else if (res[0] === 'failed') {
+                mutate({
+                    ...data,
+                    login: res[1]
+                });
+            }
+        },
+        async logout(returnUrl: string) {
+            await logout(config.rootPrefix);
+            router.push(returnUrl);
+        },
+        async getMemberIndex() {
+            const res = await getMemberIndex();
+            if (res[0] === 'login') {
+                router.push(loginUrl);
+            }
+            else if (res[0] === 'member') {
+                mutate({
+                    ...data,
+                    memberIndex: res[1],
+                })
+            }
         }
     }
 }
@@ -276,7 +416,7 @@ export type CommerbleCartLine = {
     tax: number
     thumbnail: string
 }
-export type CommerbleCartState = {
+export type CommerbleViewState = {
     messages: string[]
     warnings: string[]
     errors: string[]
@@ -285,7 +425,7 @@ export type CommerbleCart = {
     id: number
     items: CommerbleCartLine[]
     errors: string[]
-    state: CommerbleCartState
+    state: CommerbleViewState
 }
 export type CommerbleAddress = {
     addressId?: number
@@ -391,6 +531,50 @@ export type CommerbleOrderInfo = CommerbleCart & {
     totalPayment: number
     totalUsagePoint: number
 }
+export type CommerbleLoginForm = {
+    userName: string
+    password: string
+    returnUrl: string
+    token: string
+    state: CommerbleViewState
+}
+export type CommerbleRegisterForm = {
+    userName: string
+    lastName: string
+    firstName: string
+    lastNameKana: string
+    firstNameKana: string
+    birthdayY?: number
+    birthdayM?: number
+    birthdayD?: number
+    sex?: number
+    subscribe?: boolean
+    password: string
+    confirmPassword: string
+    token: string
+    state: CommerbleViewState
+}
+export type CommerbleRegisterConfirmInfo = {
+    userName: string
+    lastName: string
+    firstName: string
+    lastNameKana: string
+    firstNameKana: string
+    birthY?: number
+    birthM?: number
+    birthD?: number
+    sex?: number
+    subscribe?: boolean
+    token: string
+    model: string
+    state: CommerbleViewState
+}
+export type CommerbleRegisterInfo = {
+    state: CommerbleViewState
+}
+export type CommerbleMemberIndexInfo = {
+    state: CommerbleViewState
+}
 export type CommerbleState = {
     carts: CommerbleCart[]
     shipping: CommerbleShippingForm | null
@@ -398,6 +582,11 @@ export type CommerbleState = {
     confirm: CommerbleConfirmInfo | null
     complete: CommerbleOrderInfo | null
     external: CommerbleOrderInfo | null
+    login: CommerbleLoginForm | null
+    register: CommerbleRegisterForm | null
+    registerConfirm: CommerbleRegisterConfirmInfo | null
+    registerComplete: CommerbleRegisterInfo | null
+    memberIndex: CommerbleMemberIndexInfo | null
 }
 export type CommerbleCartInRequest = {
     item: number, 
@@ -428,7 +617,7 @@ const updateQty = (cart: CommerbleCart, target: CommerbleCartLine, diff: number)
     })
     return fetch('/api/ec/order/cart', {
         method: 'post',
-        body: form    
+        body: form
     }).then(res => res.json())
 };
 
@@ -578,11 +767,98 @@ const getExternalInfo = async (cartId: number, orderId: number): Promise<['login
     return ['external', await res.json() as CommerbleOrderInfo];
 }
 
-export type CommerblePublicConfig = {
-    rootPrefix: string,
-    loginUrl: string,
+const getLoginForm = async (returnUrl): Promise<CommerbleLoginForm> => {
+    const res = await fetch(`/api/ec/site/login`);
+    return { ...(await res.json()), returnUrl };
 }
-export const CommerbleContext = createContext<CommerblePublicConfig>({
-    rootPrefix: '',
-    loginUrl: '/cart#login'
-})
+const login = async (data: CommerbleLoginForm, prefix:string): Promise<['failed', CommerbleLoginForm]|['succeeded', string]> => {
+    const form = new FormData();
+    form.append('UserName', data.userName);
+    form.append('Password', data.password);
+    form.append('ReturnUrl', prefix + "/site/loginstate");
+    form.append('__RequestVerificationToken', data.token);
+    const res = await fetch(`/api/ec/site/login`, {
+        method: 'post',
+        body: form
+    });
+    const url = new URL(res.url);
+    const pathname = url.pathname.toLocaleLowerCase();
+    if (pathname.endsWith('/site/login') || res.status == 401 || res.status == 403) {
+        return ['failed', await res.json()];
+    }
+    let returnUrl = data.returnUrl || '/';
+    return ['succeeded', returnUrl.startsWith('/') ? returnUrl : '/'];
+}
+const logout = async (prefix:string): Promise<void> => {
+    await fetch(`/api/ec/site/logout?returnUrl=${encodeURIComponent(prefix + '/site/loginstate')}`);
+}
+
+const getMemberIndex = async (): Promise<['login']|['member', CommerbleMemberIndexInfo]> => {
+    const res = await fetch(`/api/ec/member/index`);
+    const url = new URL(res.url);
+    const pathname = url.pathname.toLocaleLowerCase();
+    if (pathname.endsWith('/site/login') || res.status == 401 || res.status == 403) {
+        return ['login'];
+    }
+    return ['member', await res.json()];
+}
+
+const getSiteAccount = async (): Promise<CommerbleRegisterForm> => {
+    const res = await fetch(`/api/ec/site/account`);
+    return  await res.json();
+}
+const confirmSiteAccount = async (data: CommerbleRegisterForm): Promise<['form', CommerbleRegisterForm] | ['confirm', CommerbleRegisterConfirmInfo]> => {
+    const form = new FormData();
+    form.append('UserName', data.userName);
+    form.append('LastName', data.lastName);
+    form.append('FirstName', data.firstName);
+    form.append('LastNameKana', data.lastNameKana);
+    form.append('FirstNameKana', data.firstNameKana);
+    form.append('BirthdayY', String(data.birthdayY));
+    form.append('BirthdayM', String(data.birthdayM));
+    form.append('BirthdayD', String(data.birthdayD));
+    form.append('Subscribe', String(data.subscribe));
+    form.append('Sex', String(data.sex));
+    form.append('Password', data.password);
+    form.append('ConfirmPassword', data.confirmPassword);
+    form.append('confirm', 'confirm');
+    form.append('__RequestVerificationToken', data.token);
+    const res = await fetch(`/api/ec/site/account`, {
+        method: 'post',
+        body: form
+    });
+    const info = await res.json();
+    console.log(info)
+    if (info.model) {
+        return ['confirm', info];
+    }
+    return ['form', info];
+}
+const createSiteAccount = async (data: CommerbleRegisterConfirmInfo) : Promise<['form', CommerbleRegisterForm] | ['complete', CommerbleRegisterInfo]> => {
+    const form = new FormData();
+    form.append('model', data.model);
+    form.append('__RequestVerificationToken', data.token);
+    form.append('create', 'create');
+    const res = await fetch(`/api/ec/site/account`, {
+        method: 'post',
+        body: form
+    });
+    const url = new URL(res.url);
+    const pathname = url.pathname.toLocaleLowerCase();
+    if (pathname.endsWith('/site/accountcomplete')) {
+        return ['complete', await res.json()];
+    }
+    return ['form', await res.json()];
+}
+const getSiteActivate = async (token: string): Promise<void> => {
+    await fetch(`/api/ec/site/activate/${token}`);
+}
+
+// export type CommerblePublicConfig = {
+//     rootPrefix: string,
+//     loginUrl: string,
+// }
+// export const CommerbleContext = createContext<CommerblePublicConfig>({
+//     rootPrefix: '',
+//     loginUrl: '/login'
+// })

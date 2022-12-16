@@ -37,7 +37,7 @@ export const CartSummary = ({
         <tfoot className="border-t-2">
             <tr>
                 <th className="p-4 pl-0 text-left">合計:</th>
-                <td>
+                <td className="text-right">
                     <Price value={total}/> {noDeliveryCharge && '+ 送料'}
                 </td>
             </tr>

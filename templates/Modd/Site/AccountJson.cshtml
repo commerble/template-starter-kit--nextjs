@@ -1,0 +1,24 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var tag = Page.Html.SessionAntiForgeryToken().ToString();
+    var token = Regex.Match(tag, @"value=""(.*?)""").Groups[1].Value;
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
+    var account = Page.ViewData.Model as VM.Account;
+    @:@Raw(Jil.JSON.Serialize(new {
+        account.UserName,
+        account.LastName,
+        account.FirstName,
+        account.LastNameKana,
+        account.FirstNameKana,
+        account.BirthdayY,
+        account.BirthdayM,
+        account.BirthdayD,
+        account.Subscribe,
+        account.Sex,
+        Password = (string)null,
+        ConfirmPassword = (string)null,
+        Token = token,
+        State = viewData,
+    }, Jil.Options.ISO8601CamelCase))
+}

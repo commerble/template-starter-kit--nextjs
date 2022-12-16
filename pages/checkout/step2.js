@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { CartLine } from "../../components/CartLine";
 import Link from "next/link";
 import useCommerble from "../../libs/commerble";
+import { Button } from "../../components/Button";
 
 export default function CheckoutStep2Page({data}) {
     const router = useRouter();
     const cb = useCommerble();
-    const [isLoading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(null);
     const { register, handleSubmit, formState: { errors }, getValues, setValue, reset } = useForm({
         defaultValues: cb.data.shipping
     })
@@ -24,13 +25,21 @@ export default function CheckoutStep2Page({data}) {
 
     const onSubmit = async (data) => {
         try{
-            setLoading(true);
+            setLoading('submit');
             await cb.postPaymentForm(1, data);
         }
         finally{
-            setLoading(false);
+            setLoading(null);
         }
     }
+
+    const back = () => {
+        setLoading('back');
+        cb.clearFormCache();
+        router.push('/checkout/step1');
+    }
+
+    const validatePaymentMethod = (value) => value && value != 'None';
 
     return <>
         <div className="layout-2col">
@@ -68,7 +77,7 @@ export default function CheckoutStep2Page({data}) {
 
                     <div className="field">
                         <label>お届け日</label>
-                        <select {...register('deliveryOrder.deliveryDate', { required: false, valueAsDate: false })}>
+                        <select {...register('deliveryOrder.deliveryDate', { required: false, valueAsDate: false })} autoFocus={true}>
                             <option value="">---</option>
                             {data.deliveryDateOptions.map(d => <option key={d.value} value={d.value}>{d.text}</option>)}
                         </select>
@@ -100,7 +109,7 @@ export default function CheckoutStep2Page({data}) {
                     <h2>お支払オプション</h2>
                     <div className="field">
                         <label>お支払方法</label>
-                        <select {...register('paymentMethod', { required: true })}>
+                        <select {...register('paymentMethod', { validate: validatePaymentMethod })}>
                             <option value="CashOnDelivery">代引き</option>
                             <option value="Token">クレジットカード</option>
                         </select>
@@ -120,11 +129,20 @@ export default function CheckoutStep2Page({data}) {
                     <hr/>
 
                     <div className="flex flex-col items-center gap-4">
-                        <button type="submit" className="btn-blue h-14 w-full text-lg relative">
-                            {isLoading ? (<SunIcon className="inline-block w-6 h-6 animate-spin"/>):(<>確認</>)}
-                            <ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/>
-                        </button>
-                        <button type="button" className="h-14 w-full text-lg relative" onClick={() => router.push('/checkout/step1')}><ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>もどる</button>
+                        <Button
+                            loading={loading==='submit'}
+                            disabled={loading}
+                            type="submit"
+                            looks="primary"
+                            className="w-full"
+                            rightIcon={<ArrowRightIcon className="absolute right-4 inline-block w-8 h-8 ml-5"/>}
+                            >入力内容を確認</Button>
+                        <Button
+                            looks="text"
+                            className="w-full"
+                            leftIcon={<ArrowLeftIcon className="absolute left-4 inline-block w-8 h-8"/>}
+                            onClick={back}
+                            >もどる</Button>
                     </div>
                 </div>
             </form>

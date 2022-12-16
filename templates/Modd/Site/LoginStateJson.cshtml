@@ -1,0 +1,6 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    @:@Raw(Jil.JSON.Serialize(new {
+    }, Jil.Options.ISO8601CamelCase))
+}

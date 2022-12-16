@@ -7,11 +7,12 @@ import { Modal } from '../components/Modal';
 import { CartSummary } from '../components/CartSummary';
 import { useMemo } from 'react';
 import useCommerble from '../libs/commerble';
+import { Button } from '../components/Button';
 
 export default function CartPage({data}) {
     const router = useRouter();
     const cb = useCommerble();
-    const [isLoading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(null);
     const [cartId, setCartId] = useState(0);
     const cart = useMemo(() => cb.data.carts[cartId], [cb.data.carts, cartId]);
 
@@ -24,40 +25,43 @@ export default function CartPage({data}) {
 
     const update = async (target, diff) => {
         try {
-            setLoading(true);
+            setLoading('line');
             cb.updateQty(cart, target, diff);
         }
         finally {
-            setLoading(false);
+            setLoading(null);
         }
     }
 
     const remove = async (target) => {
         try {
-            setLoading(true);
+            setLoading('line');
             cb.removeLine(target);
         }
         finally {
-            setLoading(false);
+            setLoading(null);
         }
     }
 
     const tryCheckouting = async (guest) => {
         try {
-            setLoading(true);
+            setLoading('tryCheckouting');
             await cb.tryCheckouting(cart, guest);
         }
         finally {
-            setLoading(false);
+            setLoading(null);
         }
     }
 
-    const isLoginModalOpen = router.asPath.includes('#login');
-
-    if (isLoginModalOpen) {
-        history.replaceState("", "", location.pathname)
+    const checkout = () => {
+        tryCheckouting();
     }
 
+    const checkoutAsGuest = () => {
+        setLoading('guest');
+        tryCheckouting(true);
+    }
+    
     return <>
         <div className="layout-2col">
             <div className="layout-2col__col bg-white">
@@ -87,11 +91,10 @@ export default function CartPage({data}) {
                                     onIncClick={() => update(item, +1)}
                                     onDecClick={() => update(item, -1)}
                                     onRemoveClick={() => remove(item)}
-                                    disabled={isLoading}/>
+                                    disabled={loading}/>
                             ))}
                         </section>
                     }
-                    {/* <pre>{JSON.stringify(carts, null, '\t')}</pre> */}
                 </div>
             </div>
             <div className="layout-2col__col xy-center pb-8">
@@ -107,26 +110,26 @@ export default function CartPage({data}) {
                         {cart.errors.length === 0 && <>
                             <hr className="my-8"/>
                             <div className="flex flex-col gap-4 items-end">
-                                <button className="btn-blue h-14 w-72 text-lg" onClick={() => tryCheckouting()}>
-                                    {isLoading ? (
-                                        <SunIcon className="inline-block w-8 h-8 animate-spin"/>
-                                    ):(
-                                        <><ShoppingCartIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>CHECK OUT</>
-                                    )}
-                                </button>
+                                <Button
+                                    loading={loading === 'tryCheckouting'}
+                                    disabled={loading}
+                                    looks="primary"
+                                    className="w-72 text-lg" 
+                                    onClick={checkout}
+                                    leftIcon={<ShoppingCartIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>}
+                                    >購入にすすむ</Button>
+                                <Button
+                                    loading={loading === 'guest'}
+                                    disabled={loading}
+                                    looks="text"
+                                    className="w-72"
+                                    onClick={checkoutAsGuest}
+                                    >ゲスト購入</Button>
                             </div> 
                         </>}
                     </section>
                 }
             </div>
         </div>
-        <Modal open={isLoginModalOpen}>
-            <button className="btn-blue h-14 w-72 text-lg" disabled onClick={() => router.push('/login')}>
-                <ShoppingCartIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>ログインして購入</button>
-            <button className="btn-blue h-14 w-72 text-lg" disabled onClick={() => router.push('/login')}>
-                <UserAddIcon className="inline-block w-8 h-8 mr-5 -ml-10"/>新規会員登録</button>
-            <button className="btn-gray h-14 w-72 text-lg" onClick={() => tryCheckouting(true)}>ログインせずに購入</button>
-            <button onClick={() => router.back()}>とじる</button>
-        </Modal>
     </>
 }
