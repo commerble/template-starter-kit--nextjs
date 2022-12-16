@@ -45,7 +45,6 @@ export default function CartPage({data}) {
 
     const tryCheckouting = async (guest) => {
         try {
-            setLoading('tryCheckouting');
             await cb.tryCheckouting(cart, guest);
         }
         finally {
@@ -54,6 +53,7 @@ export default function CartPage({data}) {
     }
 
     const checkout = () => {
+        setLoading('tryCheckouting');
         tryCheckouting();
     }
 
