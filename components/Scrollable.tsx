@@ -9,5 +9,5 @@ export const Scrollable: React.FC<PropsWithChildren<Props>> = ({trigger, childre
     useEffect(() => {
         scrollContainer.current?.scroll({top:0});
     }, [trigger]);
-    return <div {...props}>{children}</div>
+    return <div ref={scrollContainer} {...props}>{children}</div>
 }
