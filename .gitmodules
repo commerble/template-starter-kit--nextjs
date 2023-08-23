@@ -1,0 +1,3 @@
+[submodule "modules/commerble-nextjs-sdk"]
+	path = modules/commerble-nextjs-sdk
+	url = https://github.com/commerble/commerble-nextjs-sdk.git
