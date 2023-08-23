@@ -6,7 +6,7 @@
     "dev:template": "node ./sync.js watch",
     "dev:next": "next dev",
     "dev": "npm-run-all -p dev:next dev:template",
-    "build": "next build",
+    "build": "next build && rm -rf ./.next/cache",
     "start": "next start",
     "lint": "next lint"
   },
