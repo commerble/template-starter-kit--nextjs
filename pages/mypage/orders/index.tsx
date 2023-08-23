@@ -16,7 +16,7 @@ export async function getServerSideProps(ctx) {
 function useCommerble(query) {
     const router = useSiteRouter();
     const page = Number(query.page) || 0;
-    const [data, mutate] = useCommerbleState(() => getOrderHistoryList(page));
+    const [data, mutate] = useCommerbleState(() => getOrderHistoryList(page), [page]);
 
     useEffect(() => {
         if (data?.type === 'next' && data.next === 'site/login') {
