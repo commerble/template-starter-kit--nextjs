@@ -1,0 +1,16 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var userName = Page.ViewData.Model as VM.ChangeUserName;
+    var model = Regex.Match(Page.Html.ModelToObjectState("model", userName).ToString(), @"value=""(.*?)""").Groups[1].Value;
+    var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/usernameconfirm",
+        State = viewData,
+        UserName = userName.UserName,
+        Model = model,
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

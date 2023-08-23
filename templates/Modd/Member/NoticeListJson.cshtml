@@ -1,0 +1,45 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var data = Page.ViewData.Model as IEnumerable<ReserveRequest>;
+
+    int page = int.TryParse((Page.Request.QueryString["page"] ?? "0"), out page) ? page : 0;
+    int size = 10;
+    var total = data.Count();
+    var items = data.OrderByDescending(o => o.ReserveRequestId).Skip(page * size).Take(size);
+    var maxPage = (total / size) + Math.Max(0, Math.Min(1, total % size));
+    
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/noticelist",
+        State = viewData,
+        Paging = new {
+            Current = page,
+            Total = total,
+            Size = size,
+            MaxPage = maxPage,
+        },
+        Items = items.Select(reserve => new {
+            Product = new {
+                Id = reserve.Product.ProductId,
+                reserve.Product.ExternalId1,
+                reserve.Product.ExternalId2,
+                reserve.Product.ExternalId3,
+                reserve.Product.ExternalId4,
+                reserve.Product.Name,
+                reserve.Product.ReleaseDate,
+                UnitPriceWithoutTax = reserve.Product.UnitPrice,
+                UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(reserve.ProductId),
+                
+            },
+            Id = reserve.ReserveRequestId,
+            reserve.OrderId,
+            reserve.RequestAt,
+            reserve.Status,
+            reserve.Amount,
+            reserve.ReservedStock.ExpireAt,
+            CanCancel = reserve.Status == ReserveRequestStatus.Accept || reserve.Status == ReserveRequestStatus.Allocated,
+        }),
+    }, Jil.Options.ISO8601CamelCase))
+}

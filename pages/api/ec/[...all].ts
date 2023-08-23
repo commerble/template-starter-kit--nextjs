@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import httpProxyMiddleware from '../../../libs/proxy';
-import https from 'https'
-import { URL } from "url";
+import httpProxyMiddleware from '../../../modules/commerble-nextjs-sdk/server/proxy';
 
 export const config = {
   api: {
@@ -10,34 +8,6 @@ export const config = {
   },
 }
 
-export default (req: NextApiRequest, res: NextApiResponse): Promise<any> => {
-  const proxy = httpProxyMiddleware(req, res, {
-    target: process.env.CBPAAS_EP,
-    changeOrigin: true,
-    headers: {
-      'Authorization': process.env.CBPAAS_AUTHZ,
-      'X-Template-Suffix': 'Json',
-    },
-    pathRewrite: [
-      {
-        patternStr: '^/api/ec',
-        replaceStr: ''
-      }
-    ],
-    locationRewrite: [
-      {
-        patternStr: '^' + process.env.CBPAAS_EP,
-        replaceStr: '/api/ec'
-      },
-      {
-        patternStr: '^' + new URL(process.env.CBPAAS_EP).pathname,
-        replaceStr: '/api/ec'
-      }
-    ],
-    agent:new https.Agent({
-      rejectUnauthorized: false
-    }),
-  } as any)
-  
-  return proxy
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  await httpProxyMiddleware(req, res);
 }

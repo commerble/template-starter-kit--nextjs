@@ -1,0 +1,33 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var reserve = Page.ViewData.Model as ReserveRequest; 
+    var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
+    
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/notice",
+        State = viewData,
+        Product = new {
+            Id = reserve.Product.ProductId,
+            reserve.Product.ExternalId1,
+            reserve.Product.ExternalId2,
+            reserve.Product.ExternalId3,
+            reserve.Product.ExternalId4,
+            reserve.Product.Name,
+            reserve.Product.ReleaseDate,
+            UnitPriceWithoutTax = reserve.Product.UnitPrice,
+            UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(reserve.ProductId),
+            
+        },
+        Id = reserve.ReserveRequestId,
+        reserve.OrderId,
+        reserve.RequestAt,
+        reserve.Status,
+        reserve.Amount,
+        reserve.ReservedStock.ExpireAt,
+        CanCancel = reserve.Status == ReserveRequestStatus.Accept || reserve.Status == ReserveRequestStatus.Allocated,
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

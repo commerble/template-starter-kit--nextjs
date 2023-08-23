@@ -6,6 +6,7 @@
     var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
     var account = Page.ViewData.Model as VM.Account;
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/account",
         account.UserName,
         account.LastName,
         account.FirstName,

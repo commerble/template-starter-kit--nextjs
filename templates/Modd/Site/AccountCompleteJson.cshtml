@@ -2,11 +2,12 @@
     Layout = null;
     Page.Response.ContentType = "application/json";
     var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
-    /*var token = viewData.Messages.FirstOrDefault(msg => msg.StartsWith("Activate.Token"));
-    if (token != null) {
-        viewData.Messages.Remove(token);
-    }*/
+    var activateToken = viewData.Messages.FirstOrDefault(msg => msg.StartsWith("Activate.Token"));
+    if (activateToken != null) {
+        viewData.Messages.Remove(activateToken);
+    }
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/accountcomplete",
         State = viewData,
     }, Jil.Options.ISO8601CamelCase))
 }

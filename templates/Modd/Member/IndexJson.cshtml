@@ -3,6 +3,7 @@
     Page.Response.ContentType = "application/json";
     var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/index",
         State = viewData,
     }, Jil.Options.ISO8601CamelCase))
 }

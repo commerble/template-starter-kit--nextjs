@@ -1,0 +1,12 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var payments = Page.ViewData.Model as IEnumerable<object>;
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/payments",
+        State = viewData,
+        Payments = payments,
+    }, Jil.Options.ISO8601CamelCase))
+}

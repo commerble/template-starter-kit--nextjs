@@ -1,0 +1,52 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
+    var cart = Page.ViewData.Model as HistoryCart;
+    
+    var data = new {
+        Type = "order/history",
+        Id = cart.OrderId,
+        cart.OrderDate,
+        cart.OrderStatus,
+        cart.TotalPayment,
+        cart.PaymentMethod,
+        cart.PaymentStatus,
+        cart.Subtotal,
+        cart.DiscountPrice,
+        cart.DeliveryCharge,
+        cart.TotalUsagePoint,
+        cart.ChargePointSummary,
+        Items = cart.ExpandItems.Select(item => new {
+            OrderLineType = item.OrderLineType,
+            ProductId = item.ProductId,
+            ProductName = item.Product.Name,
+            RequestAmount = item.RequestAmount,
+            Description = item.Description,
+            ExternalId1 = item.Product.ExternalId1,
+            ExternalId2 = item.Product.ExternalId2,
+            ExternalId3 = item.Product.ExternalId3,
+            ExternalId4 = item.Product.ExternalId4,
+            UnitPriceWithoutTax = item.UnitPrice,
+            UnitPriceWithTax = (item.LinePrice + item.DiscountPrice) / item.OrderAmount,
+            DiscountPrice = item.DiscountPrice,
+            LinePrice = item.LinePrice,
+            Tax = item.Tax,
+            
+        }),
+        State = viewData,
+        Errors = cart.Errors.Select(error => new {
+            Type = error.ErrorType,
+            DetailErrorCode = error.DetailErrorCode,
+            DetailErrorMessage = error.DetailErrorMessage,
+            Item = error.Item?.ProductId,
+        }),
+        cart.DeliveryOrder,
+        cart.DeliveryOrderAddress,
+        cart.OrderCustomer,
+        cart.OrderCustomerOrderedAddress,
+        cart.OrderCustomerInvoiceAddress,
+        cart.ServiceValues,
+    };
+    @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
+}

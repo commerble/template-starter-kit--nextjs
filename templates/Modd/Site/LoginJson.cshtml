@@ -4,8 +4,11 @@
     var tag = Page.Html.SessionAntiForgeryToken().ToString();
     var token = Regex.Match(tag, @"value=""(.*?)""").Groups[1].Value;
     var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var returnUrl = Page.ViewData.Eval("returnUrl") as string ?? string.Empty;
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/login",
         Token = token,
         State = viewData,
+        ReturnUrl = returnUrl,
     }, Jil.Options.ISO8601CamelCase))
 }

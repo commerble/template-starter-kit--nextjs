@@ -2,5 +2,6 @@
     Layout = null;
     Page.Response.ContentType = "application/json";
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/loginstate",
     }, Jil.Options.ISO8601CamelCase))
 }

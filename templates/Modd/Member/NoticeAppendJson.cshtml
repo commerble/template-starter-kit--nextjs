@@ -1,0 +1,27 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var notice = Page.ViewData.Model as VM.NoticeAppend; 
+    var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
+    
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/noticeappend",
+        State = viewData,
+        Product = new {
+            Id = notice.Product.ProductId,
+            notice.Product.ExternalId1,
+            notice.Product.ExternalId2,
+            notice.Product.ExternalId3,
+            notice.Product.ExternalId4,
+            notice.Product.Name,
+            notice.Product.ReleaseDate,
+            UnitPriceWithoutTax = notice.Product.UnitPrice,
+            UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(notice.ProductId),
+            
+        },
+        notice.RequestAmount,
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

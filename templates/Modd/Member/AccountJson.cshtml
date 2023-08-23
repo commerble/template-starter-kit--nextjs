@@ -1,0 +1,31 @@
+
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var account = Page.ViewData.Model as VM.Account;
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/account",
+        State = viewData,
+        account.UserName,
+        account.LastName,
+        account.FirstName,
+        account.LastNameKana,
+        account.FirstNameKana,
+        account.Sex,
+        account.BirthdayY,
+        account.BirthdayM,
+        account.BirthdayD,
+        account.Subscribe,
+        Address = new {
+            account.Address.CountryCode,
+            account.Address.ZipCode,
+            account.Address.Pref,
+            account.Address.City,
+            account.Address.Street,
+            account.Address.Building,
+            account.Address.Tel,
+        }
+    }, Jil.Options.ISO8601CamelCase))
+}

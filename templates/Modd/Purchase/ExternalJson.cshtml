@@ -2,8 +2,14 @@
     Layout = null;
     Page.Response.ContentType = "application/json";
     var order = Page.ViewData.Model as PurchaseOrder;
-    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    
     var data = new {
+        Type = "purchase/external",
+        Id = order.OrderId,
+        order.OrderDate,
+        order.OrderStatus,
+        order.PaymentMethod,
+        order.PaymentStatus,
         Items = order.Items.Select(item => new {
             OrderLineType = item.OrderLineType,
             ProductId = item.ProductId,
@@ -22,12 +28,25 @@
             Tax = item.Tax,
             UnitPriceWithoutTax = item.UnitPrice,
             UnitPriceWithTax = (item.LinePrice + item.DiscountPrice + item.PointUsagePrice) / item.OrderAmount,
-            Thumbnail = prefix + item.ProductId + "/Large"
+            
         }),
         Errors = new object[]{},
         DeliveryOrder = order.DeliveryOrder,
         DeliveryOrderAddress = order.DeliveryOrderAddress,
-        OrderCustomer = order.OrderCustomer,
+        OrderCustomer = new {
+            order.OrderCustomer.LastName,
+            order.OrderCustomer.FirstName,
+            order.OrderCustomer.LastNameKana,
+            order.OrderCustomer.FirstNameKana,
+            order.OrderCustomer.EmailAddr,
+            order.OrderCustomer.IsGuest,
+            order.OrderCustomer.MemberRank,
+            order.OrderCustomer.MemberStatus,
+            order.OrderCustomer.PaymentDetail,
+            order.OrderCustomer.PaymentSlipNumber,
+            order.OrderCustomer.PaymentSlipUrl,
+            order.OrderCustomer.AutoCancelDate,
+        },
         OrderCustomerOrderedAddress = order.OrderCustomerOrderedAddress,
         OrderCustomerInvoiceAddress = order.OrderCustomerInvoiceAddress,
         ServiceValues = order.ServiceValues,

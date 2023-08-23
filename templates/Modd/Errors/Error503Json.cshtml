@@ -1,0 +1,10 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "error/serviceunavailable",
+        State = viewData,
+    }, Jil.Options.ISO8601CamelCase))
+}

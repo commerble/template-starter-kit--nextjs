@@ -1,0 +1,37 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var data = Page.ViewData.Model as IEnumerable<Favorite>;
+
+    int page = int.TryParse((Page.Request.QueryString["page"] ?? "0"), out page) ? page : 0;
+    int size = 10;
+    var total = data.Count();
+    var items = data.OrderByDescending(o => o.RegisterAt).Skip(page * size).Take(size);
+    var maxPage = (total / size) + Math.Max(0, Math.Min(1, total % size));
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/favoritelist",
+        State = viewData,
+        Paging = new {
+            Current = page,
+            Total = total,
+            Size = size,
+            MaxPage = maxPage,
+        },
+        Items = items.Select(favorite => new {
+            Product = new {
+                Id = favorite.Product.ProductId,
+                favorite.Product.ExternalId1,
+                favorite.Product.ExternalId2,
+                favorite.Product.ExternalId3,
+                favorite.Product.ExternalId4,
+                favorite.Product.Name,
+                favorite.Product.ReleaseDate,
+                UnitPriceWithoutTax = favorite.Product.UnitPrice,
+                UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(favorite.ProductId),
+            },
+            favorite.RegisterAt,
+        }),
+    }, Jil.Options.ISO8601CamelCase))
+}

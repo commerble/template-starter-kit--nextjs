@@ -1,17 +1,17 @@
 import { SunIcon } from '@heroicons/react/outline';
-import { FC, MouseEventHandler } from 'react';
+import { FC, PropsWithChildren, MouseEventHandler } from 'react';
 type Props = {
     looks?: 'primary' | 'text' | 'custom' | 'default'
     type?: 'submit' | 'reset' | 'button'
     loading?: boolean
     className?: string
     disabled?: boolean
+    value?: string
     leftIcon?: JSX.Element
     rightIcon?: JSX.Element
-    children?: JSX.Element
     onClick?: MouseEventHandler<HTMLButtonElement>
 }
-export const Button:FC<Props> = (props) => {
+export const Button:FC<PropsWithChildren<Props>> = (props) => {
     const classNames = ['btn relative', props.className];
 
     if (props.looks === 'primary') {

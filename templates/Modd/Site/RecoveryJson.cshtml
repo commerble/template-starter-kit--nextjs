@@ -1,0 +1,16 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var tag = Page.Html.SessionAntiForgeryToken().ToString();
+    var token = Regex.Match(tag, @"value=""(.*?)""").Groups[1].Value;
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var activateToken = viewData.Messages.FirstOrDefault(msg => msg.StartsWith("Activate.Token"));
+    if (activateToken != null) {
+        viewData.Messages.Remove(activateToken);
+    }
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/recovery",
+        State = viewData,
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

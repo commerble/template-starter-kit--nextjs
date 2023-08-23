@@ -1,0 +1,26 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var data = Page.ViewData.Model as UserAddress;
+    var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/address",
+        State = viewData,
+        data.AddressName,
+        data.Address.AddressId,
+        data.Address.Recipientlastname,
+        data.Address.Recipientfirstname,
+        data.Address.Recipientlastnamekana,
+        data.Address.Recipientfirstnamekana,
+        data.Address.CountryCode,
+        data.Address.ZipCode,
+        data.Address.Pref,
+        data.Address.City,
+        data.Address.Street,
+        data.Address.Building,
+        data.Address.Tel,
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

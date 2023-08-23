@@ -7,8 +7,9 @@
     if (payment.DeliveryOrder.HourRange == null) {
         payment.DeliveryOrder.HourRange = "0000";
     }
-    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    
     var data = new {
+        Type = "purchase/payment",
         Id = cart.CartDefinition.CartId,
         Items = cart.Items.Select(item => new {
             ProductId = item.ProductId,
@@ -24,7 +25,7 @@
             DiscountPrice = item.DiscountPrice,
             LinePrice = item.LinePrice,
             Tax = item.Tax,
-            Thumbnail = prefix + item.ProductId + "/Large"
+            
         }),
         State = viewData,
         Errors = cart.Errors.Select(error => new {
@@ -43,7 +44,20 @@
             payment.DeliveryOrder.ShipSourceId,
             payment.DeliveryOrder.WrappingType,
         },
-        OrderCustomer = payment.OrderCustomer,
+        OrderCustomer = new {
+            cart.OrderCustomer.LastName,
+            cart.OrderCustomer.FirstName,
+            cart.OrderCustomer.LastNameKana,
+            cart.OrderCustomer.FirstNameKana,
+            cart.OrderCustomer.EmailAddr,
+            cart.OrderCustomer.IsGuest,
+            cart.OrderCustomer.MemberRank,
+            cart.OrderCustomer.MemberStatus,
+            cart.OrderCustomer.PaymentDetail,
+            cart.OrderCustomer.PaymentSlipNumber,
+            cart.OrderCustomer.PaymentSlipUrl,
+            cart.OrderCustomer.AutoCancelDate,
+        },
         PaymentMethod = payment.PaymentMethod,
         LocalStoreCardDisplayNo = payment.LocalStoreCardDisplayNo,
         IsEasyCardEntry = payment.IsEasyCardEntry,

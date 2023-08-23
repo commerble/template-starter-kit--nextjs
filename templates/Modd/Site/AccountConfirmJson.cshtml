@@ -6,6 +6,7 @@
     var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
     var model = Regex.Match(Page.Html.ModelToObjectState("model",account), @"value=""(.*?)""").Groups[1].Value;
     @:@Raw(Jil.JSON.Serialize(new {
+        Type = "site/accountconfirm",
         account.UserName,
         account.LastName,
         account.FirstName,

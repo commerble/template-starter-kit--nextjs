@@ -1,9 +1,14 @@
 @{
     Layout = null;
     Page.Response.ContentType = "application/json";
+    var tag = Page.Html.SessionAntiForgeryToken().ToString();
+    var token = Regex.Match(tag, @"value=""(.*?)""").Groups[1].Value;
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages;
     var cart = Page.ViewData.Model as ShoppingCartBase;
-    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    
     var data = new {
+        Type = "purchase/error",
+        Token = token,
         Id = cart.CartDefinition.CartId,
         Items = cart.Items.Select(item => new {
             ProductId = item.ProductId,
@@ -19,14 +24,41 @@
             DiscountPrice = item.DiscountPrice,
             LinePrice = item.LinePrice,
             Tax = item.Tax,
-            Thumbnail = prefix + item.ProductId + "/Large"
+            
         }),
+        State = viewData,
         Errors = cart.Errors.Select(error => new {
             Type = error.ErrorType,
             DetailErrorCode = error.DetailErrorCode,
             DetailErrorMessage = error.DetailErrorMessage,
-            Item = error.Item?.ProductId
-        })
+            Item = error.Item?.ProductId,
+        }),
+        DeliveryOrder = cart.DeliveryOrder,
+        DeliveryOrderAddress = cart.DeliveryOrderAddress,
+        OrderCustomer = new {
+            cart.OrderCustomer.LastName,
+            cart.OrderCustomer.FirstName,
+            cart.OrderCustomer.LastNameKana,
+            cart.OrderCustomer.FirstNameKana,
+            cart.OrderCustomer.EmailAddr,
+            cart.OrderCustomer.IsGuest,
+            cart.OrderCustomer.MemberRank,
+            cart.OrderCustomer.MemberStatus,
+            cart.OrderCustomer.PaymentDetail,
+            cart.OrderCustomer.PaymentSlipNumber,
+            cart.OrderCustomer.PaymentSlipUrl,
+            cart.OrderCustomer.AutoCancelDate,
+        },
+        OrderCustomerOrderedAddress = cart.OrderCustomerOrderedAddress,
+        OrderCustomerInvoiceAddress = cart.OrderCustomerInvoiceAddress,
+        ServiceValues = cart.ServiceValues,
+        Subtotal = cart.Subtotal,
+        DiscountPrice = cart.DiscountPrice,
+        DeliveryCharge = cart.DeliveryCharge,
+        TotalPayment = cart.TotalPayment,
+        TotalUsagePoint = cart.TotalUsagePoint,
+        ChargePointSummary = cart.ChargePointSummary,
+        PaymentMethod = cart.PaymentMethod,
     };
     @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
 }

@@ -1,0 +1,14 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var account = Page.ViewData.Model as PointBank.Account ?? new PointBank.Account();
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/point",
+        State = viewData,
+        account.ActivePoint,
+        account.TemporaryPoint,
+        account.ExpireDate,
+    }, Jil.Options.ISO8601CamelCase))
+}

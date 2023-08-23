@@ -1,0 +1,24 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var favorite = Page.ViewData.Model as VM.FavoriteAppend; 
+    var token = Regex.Match(Page.Html.SessionAntiForgeryToken().ToString(), @"value=""(.*?)""").Groups[1].Value;
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/favoriteappend",
+        State = viewData,
+        Product = new {
+            Id = favorite.Product.ProductId,
+            favorite.Product.ExternalId1,
+            favorite.Product.ExternalId2,
+            favorite.Product.ExternalId3,
+            favorite.Product.ExternalId4,
+            favorite.Product.Name,
+            favorite.Product.ReleaseDate,
+            UnitPriceWithoutTax = favorite.Product.UnitPrice,
+            UnitPriceWithTax = Page.Template.GetUnitPriceWithTax(favorite.ProductId),
+        },
+        Token = token,
+    }, Jil.Options.ISO8601CamelCase))
+}

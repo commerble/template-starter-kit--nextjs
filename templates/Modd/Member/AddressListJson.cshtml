@@ -1,0 +1,38 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var data = Page.ViewData.Model as IEnumerable<UserAddress>;
+
+    int page = int.TryParse((Page.Request.QueryString["page"] ?? "0"), out page) ? page : 0;
+    int size = 2;
+    var total = data.Count();
+    var items = data.Skip(page * size).Take(size);
+    var maxPage = (total / size) + Math.Max(0, Math.Min(1, total % size));
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "member/addresslist",
+        State = viewData,
+        Paging = new {
+            Current = page,
+            Total = total,
+            Size = size,
+            MaxPage = maxPage,
+        },
+        Items = items.Select(u => new {
+            u.AddressName,
+            u.Address.AddressId,
+            u.Address.Recipientlastname,
+            u.Address.Recipientfirstname,
+            u.Address.Recipientlastnamekana,
+            u.Address.Recipientfirstnamekana,
+            u.Address.CountryCode,
+            u.Address.ZipCode,
+            u.Address.Pref,
+            u.Address.City,
+            u.Address.Street,
+            u.Address.Building,
+            u.Address.Tel,
+        }),
+    }, Jil.Options.ISO8601CamelCase))
+}

@@ -1,0 +1,35 @@
+@{
+    Layout = null;
+    Page.Response.ContentType = "application/json";
+    var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
+    var data = Page.ViewData.Model as IEnumerable<PurchaseOrder>;
+
+    int page = int.TryParse((Page.Request.QueryString["page"] ?? "0"), out page) ? page : 0;
+    int size = 10;
+    var total = data.Count();
+    var items = data.Skip(page * size).Take(size);
+    var maxPage = (total / size) + Math.Max(0, Math.Min(1, total % size));
+
+    @:@Raw(Jil.JSON.Serialize(new {
+        Type = "order/archivelist",
+        State = viewData,
+        Paging = new {
+            Current = page,
+            Total = total,
+            Size = size,
+            MaxPage = maxPage,
+        },
+        Items = items.Select(order => new {
+            Id = order.OrderId,
+            order.OrderDate,
+            order.OrderStatus,
+            order.PaymentMethod,
+            order.PaymentStatus,
+            order.TotalPayment,
+            order.OrderCustomer.PaymentDetail,
+            order.OrderCustomer.AutoCancelDate,
+            order.DeliveryOrder.ShipSourceId,
+            order.DeliveryOrder.DeliveryNo,
+        }),
+    }, Jil.Options.ISO8601CamelCase))
+}

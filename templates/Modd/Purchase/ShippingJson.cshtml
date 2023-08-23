@@ -4,8 +4,9 @@
     var viewData = Page.ViewData[BasicController.ViewMessageKey] as ViewMessages; 
     var shipping = Page.ViewData.Model as VM.PurchaseShipping;
     var cart = shipping.Cart;
-    var prefix = "https://" + Page.Request.Url.Host + Href("~/primaryproductimages/");
+    
     var data = new {
+        Type = "purchase/shipping",
         Id = cart.CartDefinition.CartId,
         Items = cart.Items.Select(item => new {
             ProductId = item.ProductId,
@@ -21,7 +22,7 @@
             DiscountPrice = item.DiscountPrice,
             LinePrice = item.LinePrice,
             Tax = item.Tax,
-            Thumbnail = prefix + item.ProductId + "/Large"
+            
         }),
         State = viewData,
         Errors = cart.Errors.Select(error => new {
@@ -35,6 +36,7 @@
         DeliveryOrderAddress = shipping.DeliveryOrderAddress,
         DeliveryMethod = shipping.DeliveryMethod,
         ServiceValues = shipping.ServiceValues,
+        HasDestinationAddress = shipping.DeliveryOrderAddress.ToString() != shipping.OrderCustomerOrderedAddress.ToString()
     };
     @:@Raw(Jil.JSON.Serialize(data, Jil.Options.ISO8601CamelCase))
 }
