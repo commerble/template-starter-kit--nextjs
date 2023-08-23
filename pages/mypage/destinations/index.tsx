@@ -3,14 +3,18 @@ import React, { Fragment, useEffect } from "react";
 import { Button } from "../../../components/Button";
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { getMemberAddressList } from "../../../modules/commerble-nextjs-sdk/client/api";
-import useSWR from "swr";
 import { Scrollable } from "../../../components/Scrollable";
 import { useSiteRouter } from "../../../hooks/router";
+import { useCommerbleState } from "../../../modules/commerble-nextjs-sdk/client/hooks";
 
-function useCommerble() {
+export async function getServerSideProps(ctx) {
+    return { props: { query: ctx.query } }
+}
+
+function useCommerble(query) {
     const router = useSiteRouter();
-    const page = Number(router.query.page) || 0;
-    const { data, mutate, error } = useSWR(`mypage/destinations?${page}`, () => getMemberAddressList(page));
+    const page = Number(query.page) || 0;
+    const [data, mutate] = useCommerbleState(() => getMemberAddressList(page));
 
     useEffect(() => {
         if (data?.type === 'next' && data.next === 'site/login') {
@@ -20,13 +24,12 @@ function useCommerble() {
 
     return { 
         data: data?.type === 'member/addresslist' ? data : null, 
-        mutate, 
-        error 
+        mutate,
     };
 }
 
-export default function MyDestinationListPage() {
-    const cb = useCommerble();
+export default function MyDestinationListPage({query}) {
+    const cb = useCommerble(query);
 
     return <>
         <div className="layout-2col">

@@ -9,9 +9,13 @@ import { useCommerbleState } from "../../../modules/commerble-nextjs-sdk/client/
 import { useSiteRouter } from "../../../hooks/router";
 import { CBPAAS_ENDPOINT } from "../../../modules/commerble-nextjs-sdk/client/config";
 
-function useCommerble() {
+export async function getServerSideProps(ctx) {
+    return { props: { query: ctx.query } }
+}
+
+function useCommerble(query) {
     const router = useSiteRouter();
-    const page = Number(router.query.page) || 0;
+    const page = Number(query.page) || 0;
     const [data, mutate] = useCommerbleState(() => getMemberNoticeList(page));
 
     useEffect(() => {
@@ -27,8 +31,8 @@ function useCommerble() {
 }
 
 
-export default function MyNoticeListPage() {
-    const cb = useCommerble();
+export default function MyNoticeListPage({query}) {
+    const cb = useCommerble(query);
 
     return <>
         <div className="layout-2col">

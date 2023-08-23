@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import Link from "next/link";
 import { useRouter } from "next/dist/client/router";
 import { useEffect, useState } from "react";
@@ -6,13 +5,13 @@ import { useForm } from "react-hook-form";
 import { Button } from "../components/Button";
 import { ArrowRightIcon } from "@heroicons/react/outline";
 import { getSiteLogin, login } from "../modules/commerble-nextjs-sdk/client/api";
+import { useCommerbleState } from "../modules/commerble-nextjs-sdk/client/hooks";
 
 function useCommerble() {
-    const { data, mutate, error } = useSWR('login', () => getSiteLogin());
+    const [data, mutate] = useCommerbleState(() => getSiteLogin());
     return {
         data: data?.type === 'site/login' ? data : null,
         mutate,
-        error,
     }
 }
 
@@ -34,7 +33,7 @@ export default function LoginPage() {
             const result = await login(data, router.query.returnUrl as string);
             switch(result.type) {
                 case 'site/login': 
-                    cb.mutate(result, false);
+                    cb.mutate(result);
                     break;
 
                 case 'next': 

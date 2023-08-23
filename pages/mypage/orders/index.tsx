@@ -9,9 +9,13 @@ import { useCommerbleState } from "../../../modules/commerble-nextjs-sdk/client/
 
 const fmt = Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-function useCommerble() {
+export async function getServerSideProps(ctx) {
+    return { props: { query: ctx.query } }
+}
+
+function useCommerble(query) {
     const router = useSiteRouter();
-    const page = Number(router.query.page) || 0;
+    const page = Number(query.page) || 0;
     const [data, mutate] = useCommerbleState(() => getOrderHistoryList(page));
 
     useEffect(() => {
@@ -27,8 +31,8 @@ function useCommerble() {
 }
 
 
-export default function MyOrderListPage() {
-    const cb = useCommerble();
+export default function MyOrderListPage({query}) {
+    const cb = useCommerble(query);
     return <>
         {cb.data &&
         <div className="layout-2col">
