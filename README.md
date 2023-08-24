@@ -1,7 +1,7 @@
 ## Getting Started
 
 ```
-PS> $env:CBPAAS_EP = "フロントのエンドポイント ex. https://localhost/front"
-PS> $env:CBPAAS_AUTHZ = "Authorizeヘッダーフィールドの値"
+PS> cp ./modules/commerble-nextjs-sdk/.env.example ./.env.local
+PS> code ./.env.local # and fill required values
 PS> npm run dev:next
 ```
