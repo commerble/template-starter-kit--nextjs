@@ -2,6 +2,7 @@ var webpack = require('webpack');
 var path = require('path');
 module.exports = {
   reactStrictMode: false,
+  output: 'standalone',
   i18n: {
     locales: ['ja-JP'],
     defaultLocale: 'ja-JP',
